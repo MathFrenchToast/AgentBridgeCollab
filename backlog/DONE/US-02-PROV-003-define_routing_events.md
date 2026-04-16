@@ -1,7 +1,7 @@
 ---
 id: US-02-PROV-003
 title: Define Core Routing Events and Payloads
-status: READY
+status: DONE
 type: feature
 ---
 # Description
@@ -13,11 +13,11 @@ As a Developer, I want to define standard event names and data payloads for the 
 > *   `src/types/index.ts`
 
 # Acceptance Criteria (DoD)
-- [ ] **Scenario 1: Event Type Safety**
+- **x** **Scenario 1: Event Type Safety**
     - Given the `src/types/index.ts` file
     - When I define event enums or constants for `LOG_EMITTED`, `STATUS_CHANGED`, and `INPUT_REQUESTED`
     - Then each event must have a strictly typed payload associated with it.
-- [ ] **Scenario 2: Payload Structure**
+- **x** **Scenario 2: Payload Structure**
     - Given a `LOG_EMITTED` event
     - When the payload is generated
     - Then it must contain the `projectId`, `stream` (stdout/stderr), and the `content` string.

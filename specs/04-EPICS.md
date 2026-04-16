@@ -7,12 +7,12 @@
 
 ## [Epic 2] Core Provider Interface
 *   **Goal:** Define the `ICollaborationProvider` interface and the platform-agnostic event routing logic.
-*   **Status:** IN_PROGRESS
+*   **Status:** DONE
 *   **Ref:** @specs/01-PRD.md#feature-collaboration-provider-interface
 
 ## [Epic 3] Discord Platform Implementation
 *   **Goal:** Fully implement the Discord provider using `discord.js` for channel creation and command handling.
-*   **Status:** BACKLOG
+*   **Status:** IN_PROGRESS
 *   **Ref:** @specs/01-PRD.md#feature-collaboration-provider-interface
 
 ## [Epic 4] PM2 Orchestration Layer
