@@ -2,12 +2,12 @@
 
 ## [Epic 1] Project Initialization & Tooling
 *   **Goal:** Set up Node.js/TypeScript environment, `tsconfig.json`, and basic PM2 scripts.
-*   **Status:** IN_PROGRESS
+*   **Status:** DONE
 *   **Ref:** @specs/03-ARCHITECTURE.md#tech-stack
 
 ## [Epic 2] Core Provider Interface
 *   **Goal:** Define the `ICollaborationProvider` interface and the platform-agnostic event routing logic.
-*   **Status:** BACKLOG
+*   **Status:** IN_PROGRESS
 *   **Ref:** @specs/01-PRD.md#feature-collaboration-provider-interface
 
 ## [Epic 3] Discord Platform Implementation
