@@ -12,16 +12,17 @@
 ## 2. Directory Structure & Modules
 ```
 /src
-├── providers/        # Platform-specific logic (Discord, Slack, Teams)
-│   ├── IProvider.ts  # Generic Provider Interface
-│   └── Discord.ts    # Discord-specific implementation
+├── providers/              # Platform-specific logic (Discord, Slack, Teams)
+│   ├── collaboration-provider.ts # Generic Provider Interface
+│   └── discord-provider.ts       # Discord-specific implementation
 ├── core/
-│   ├── Bridge.ts     # MCP Server initialization & tool registration
-│   ├── Orchestrator.ts # PM2 process management logic
-│   └── Config.ts     # Zod-validated environment settings
-├── types/            # Shared TypeScript interfaces & types
-├── index.ts          # Application Entry point
-└── tests/            # Vitest suite
+│   ├── mcp-bridge.ts       # MCP Server initialization & tool registration
+│   ├── process-orchestrator.ts # PM2 process management logic
+│   └── config-validator.ts # Zod-validated environment settings
+├── types/                  # Shared TypeScript interfaces & types
+│   └── index.ts
+├── index.ts                # Application Entry point
+└── tests/                  # Vitest suite
 ```
 
 ## 3. Naming Conventions
@@ -36,7 +37,17 @@
 ### 4.1 ICollaborationProvider Interface
 Every platform (Discord, Slack, etc.) MUST implement this interface to ensure the Bridge Core remains platform-agnostic:
 ```typescript
-interface ICollaborationProvider {
+export type GcbCommandType = 'start' | 'stop' | 'status' | 'list';
+
+export interface GcbCommand {
+  type: GcbCommandType;
+  projectId?: string;
+  args?: string[];
+  userId: string;
+  channelId: string;
+}
+
+export interface ICollaborationProvider {
   /** Initialize connection to the platform */
   connect(): Promise<void>;
   /** Create a dedicated space for a project (e.g., Discord Channel or Slack Thread) */

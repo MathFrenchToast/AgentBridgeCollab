@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { loadConfig } from '@/core/Config';
+import { loadConfig } from '@/core/config-validator';
 
 describe('Config Loader', () => {
   beforeEach(() => {
