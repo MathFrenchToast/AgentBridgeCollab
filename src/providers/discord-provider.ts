@@ -1,6 +1,6 @@
 import { ICollaborationProvider, GcbCommand } from '@/providers/collaboration-provider';
 import { AppConfig } from '@/core/config-validator';
-import { Client, GatewayIntentBits, ChannelType } from 'discord.js';
+import { Client, GatewayIntentBits, ChannelType, EmbedBuilder, TextChannel, Message } from 'discord.js';
 
 export class DiscordProvider implements ICollaborationProvider {
   private client: Client;
@@ -45,11 +45,52 @@ export class DiscordProvider implements ICollaborationProvider {
   }
 
   async sendMessage(spaceId: string, content: string): Promise<void> {
-    // Placeholder implementation
+    const channel = this.client.channels.cache.get(spaceId) as TextChannel;
+    if (!channel) {
+      throw new Error(`Channel with ID ${spaceId} not found`);
+    }
+
+    const embed = new EmbedBuilder()
+      .setColor('#0099ff') // Blue for Info/Logs
+      .setDescription(content);
+
+    await channel.send({ embeds: [embed] });
   }
 
   async waitForInput(spaceId: string, prompt: string): Promise<string> {
-    return 'placeholder-input';
+    const channel = this.client.channels.cache.get(spaceId) as TextChannel;
+    if (!channel) {
+      throw new Error(`Channel with ID ${spaceId} not found`);
+    }
+
+    const embed = new EmbedBuilder()
+      .setColor('#ffff00') // Yellow for HITL
+      .setTitle('WAITING FOR INPUT')
+      .setDescription(prompt);
+
+    await channel.send({ embeds: [embed] });
+
+    const filter = (m: Message) => m.author.id !== this.client.user?.id;
+    const timeoutMs = 30 * 60 * 1000; // 30 minutes
+
+    try {
+      const collected = await channel.awaitMessages({
+        filter,
+        max: 1,
+        time: timeoutMs,
+        errors: ['time'],
+      });
+
+      const response = collected.first();
+      if (!response) {
+        throw new Error('Timeout waiting for user input');
+      }
+
+      return response.content;
+    } catch (error) {
+      // discord.js awaitMessages rejects with a Collection if time runs out
+      throw new Error('Timeout waiting for user input');
+    }
   }
 
   onCommand(callback: (command: GcbCommand) => Promise<void>): void {

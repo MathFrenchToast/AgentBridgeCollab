@@ -1,7 +1,7 @@
 ---
 id: US-03-DISC-003
 title: Implement Discord Messaging and Input Polling
-status: READY
+status: DONE
 type: feature
 ---
 # Description
@@ -13,17 +13,17 @@ As a Developer, I want the Discord Provider to send messages to project channels
 > *   `src/providers/discord-provider.ts`
 
 # Acceptance Criteria (DoD)
-- [ ] **Scenario 1: Send Message**
+- **x** **Scenario 1: Send Message**
     - Given a valid `spaceId` (channel ID) and a text `content`
     - When `sendMessage(spaceId, content)` is called
     - Then the message should be successfully posted to the corresponding Discord channel using a blue Embed for info.
-- [ ] **Scenario 2: Wait For Input (Happy Path)**
+- **x** **Scenario 2: Wait For Input (Happy Path)**
     - Given a valid `spaceId` and a `prompt`
     - When `waitForInput(spaceId, prompt)` is called
     - Then the bot should post the prompt in a Yellow Embed with "WAITING FOR INPUT".
     - And it should pause execution until a user replies in that specific channel.
     - And it should return the user's message content.
-- [ ] **Scenario 3: Wait For Input Timeout**
+- **x** **Scenario 3: Wait For Input Timeout**
     - Given a `waitForInput` call
     - When no user replies within a default configured timeout (e.g., 30 minutes)
     - Then the method should reject/throw a timeout error to prevent hanging indefinitely.
