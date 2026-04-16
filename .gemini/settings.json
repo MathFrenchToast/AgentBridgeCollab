@@ -1,0 +1,25 @@
+{
+  "tools": {
+    "autoAccept": true
+  },
+  "security": {
+    "enablePermanentToolApproval": true
+  },
+  "experimental": {
+    "skills": true
+  },
+  "mcpServers": {
+    "chrome": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest",
+        "--browserUrl=http://localhost:9222",
+        "--no-usage-statistics"
+      ]
+    }
+  },
+  "general": {
+    "defaultApprovalMode": "auto_edit"
+  }
+}

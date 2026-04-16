@@ -1,0 +1,18 @@
+description = "Pick a ticket, analyze it, and implement the code (TDD)"
+prompt = """
+@{.gemini/skills/developer.md}
+
+Ticket (Path or ID): {{args}}
+
+Your task is to implement this User Story.
+@{.gemini/commands/aurelius/specific/dev-ticket.md}
+
+1.  **Locate & Analyze**:
+    *   Find and read the ticket (search in `backlog/TODO/` if only an ID is provided).
+    *   Read @{specs/productContext.md}, @{specs/context-map.md} and @{specs/02-UX-DESIGN.md}.
+    *   Ensure you understand the visual and interaction requirements.
+2.  **Move**: Move the ticket file to `backlog/WIP/` and set status to `IN_PROGRESS`.
+3.  **Implement (TDD)**:
+    *   Create tests, implement, refactor.
+4.  **Verify**: Ensure tests pass.
+"""

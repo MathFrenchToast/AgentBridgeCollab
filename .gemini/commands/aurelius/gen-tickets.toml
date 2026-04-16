@@ -1,0 +1,31 @@
+description = "Generate User Stories (tickets) for a specific Epic"
+prompt = """
+@{.gemini/skills/product-owner.md}
+
+Target Epic: {{args}}
+
+Your task is to break down the specified Epic into atomic, testable User Stories.
+
+**Decision Logic:**
+*   If `{{args}}` contains "auto", proceed autonomously by assuming standard best practices for missing details.
+*   Otherwise, if the Epic or PRD rules are ambiguous, ask the user for clarification before generating files.
+
+Read Context:
+*   @{specs/04-EPICS.md} (Find details about the target Epic)
+*   @{specs/01-PRD.md} (Extract business rules for this Epic)
+*   @{templates/user-story-template.md} (Use this format)
+
+Instructions:
+1.  **Analyze**: Focus ONLY on the Epic "{{args}}". If "{{args}}" is empty, pick the first 'BACKLOG' Epic from `specs/04-EPICS.md`. work only one Epic at a time.
+2.  **Extract Rules**: Identify all functional requirements,  business rules and UI elements in the PRD related to this Epic. 
+3.  **Create Tickets**: Generate User Story files in `backlog/TODO/`.
+    *   Naming: `US-{EPIC_NUM}-{EPIC_ID}-{US_NUM}-{short-description}.md`.
+    *   **EPIC_NUM**: The 2-digit number of the Epic from `specs/04-EPICS.md` (e.g., `01`, `02`).
+    *   **EPIC_ID**: A short, uppercase slug (e.g., `AUTH`).
+    *   **US_NUM**: The 3-digit sequential number of the story *within this Epic* (e.g., `001`, `002`).
+    *   Example: `US-01-AUTH-001-login_form.md`.
+    *   **Acceptance Criteria**: Ensure they are testable (Scenario: Given/When/Then).
+4.  **Update Epic Status**: Remind the user to mark this Epic as 'IN_PROGRESS' or 'DONE' (stories generated) in `specs/04-EPICS.md`.
+
+Output a list of the newly created ticket files.
+"""

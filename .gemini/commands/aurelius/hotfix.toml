@@ -1,0 +1,17 @@
+description = "Emergency fix for a bug"
+prompt = """
+@{.gemini/skills/developer.md}
+
+Emergency Hotfix Request: {{args}}
+
+Your task is to fix this bug immediately with minimal risk.
+
+1.  **Analyze**: Read @{specs/03-ARCHITECTURE.md} and @{specs/context-map.md}.
+2.  **Locate**: Identify the suspicious files.
+3.  **Fix**:
+    *   Create a reproduction test case.
+    *   Apply the fix.
+    *   Verify.
+
+Do NOT wait for full spec updates.
+"""
