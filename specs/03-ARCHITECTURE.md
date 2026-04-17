@@ -68,8 +68,26 @@ The `Orchestrator` acts as a wrapper around the PM2 programmatic API. It is resp
 3.  **Process Monitoring & Recovery:** Detecting if a Gemini CLI process crashes. Configuring PM2 for automatic restarts unless the process exits with code 0 (success).
 4.  **Log Tailing:** Capturing `stdout/stderr` from PM2 via `pm2.launchBus()` and routing it through the `Bridge` to the `Provider`.
 
-### 4.3 Dependency Injection
-The `McpBridge` class should be initialized by injecting a concrete provider:
+### 4.3 McpBridge Logic & Tooling
+The `McpBridge` implements the MCP Server protocol. It bridges the gap between the Gemini CLI (running as a PM2 process) and the Collaboration Provider (Discord).
+
+#### MCP Tools Definition
+1.  **`notify_user`**:
+    *   **Description**: Sends a non-blocking notification to the user in the project channel.
+    *   **Arguments**: `{ "message": "string" }`
+2.  **`ask_human`**:
+    *   **Description**: Sends a prompt to the user and waits for a reply.
+    *   **Arguments**: `{ "prompt": "string" }`
+
+#### Flow: Tool Execution
+1.  Gemini CLI calls a tool via MCP stdio.
+2.  `McpBridge` receives the tool call.
+3.  `McpBridge` identifies the `projectId` (from the environment variables of the calling process).
+4.  `McpBridge` calls the corresponding method on the `ICollaborationProvider`.
+5.  `McpBridge` returns the result back to Gemini CLI.
+
+### 4.4 Dependency Injection
+The `McpBridge` class should be initialized by injecting a concrete provider and the orchestrator:
 ```typescript
 const provider = new DiscordProvider(config);
 const orchestrator = new ProcessOrchestrator(pm2);

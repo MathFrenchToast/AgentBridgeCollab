@@ -19,6 +19,8 @@
 *   **Rule 3:** The `/stop` command must gracefully stop and delete the PM2 process.
 *   **Rule 4:** PM2 MUST be configured for automatic restarts unless the process exits with code 0 (success).
 *   **Rule 5:** GCB must tail the PM2 logs to stream agent activity back to the chat platform.
+*   **Rule 6:** The `/status` command must return the current PM2 state (online, stopping, errored) and uptime for a specific `projectId`.
+*   **Rule 7:** The `/list` command must provide a summary table of all active `projectId`s and their corresponding `channelId`.
 
 ## 2. Data Dictionary
 *   **`projectId`:** A unique, sanitized string used as the PM2 process name and channel label.
