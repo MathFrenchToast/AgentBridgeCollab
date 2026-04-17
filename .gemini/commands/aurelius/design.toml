@@ -15,9 +15,8 @@ Your task is to define or update the visual and interactive logic in `specs/02-U
 3.  **Design (Text-based)**:
     *   Describe screens, components, and user interactions.
     *   Focus on "Happy Path" and "Error Feedback".
-4.  **Autonomy**:
-    *   If "auto" is present, proceed with best UX practices for the target platform.
-    *   Otherwise, ask for preferences on layout or style.
+4.  **Reflect**:
+    *   If the request is ambiguous, ask the user for clarification.
 
 Output the updated `specs/02-UX-DESIGN.md` or the specific design notes for the ticket.
 """

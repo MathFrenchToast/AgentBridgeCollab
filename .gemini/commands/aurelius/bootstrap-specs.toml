@@ -4,11 +4,9 @@ prompt = """
 
 Initial Concept / Raw Input: {{args}}
 
-Your task is to bootstrap the project specifications. 
+Your task is to bootstrap the project specifications.
 
-**Decision Logic:**
-*   If `{{args}}` contains the keyword "auto", you are in **Autonomous Mode**. Make logical assumptions and finish all documents.
-*   Otherwise, you are in **Interactive Mode**. If the input is too vague to produce a quality PRD, list your questions and wait for the user.
+If the initial concept is too vague to produce a quality PRD, list your questions and wait for the user.
 
 1.  **Read Templates**:
     *   @{templates/product-context-template.md}

@@ -12,12 +12,12 @@
 
 ## [Epic 3] Discord Platform Implementation
 *   **Goal:** Fully implement the Discord provider using `discord.js` for channel creation and command handling.
-*   **Status:** IN_PROGRESS
+*   **Status:** DONE
 *   **Ref:** @specs/01-PRD.md#feature-collaboration-provider-interface
 
 ## [Epic 4] PM2 Orchestration Layer
 *   **Goal:** Build the `Orchestrator` to spawn and track Gemini CLI processes via PM2.
-*   **Status:** BACKLOG
+*   **Status:** IN_PROGRESS
 *   **Ref:** @specs/01-PRD.md#feature-process-orchestration-pm2-integration
 
 ## [Epic 5] MCP Server & HITL Tools

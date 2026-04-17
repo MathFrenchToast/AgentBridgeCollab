@@ -63,9 +63,10 @@ export interface ICollaborationProvider {
 
 ### 4.2 PM2 Orchestrator Lifecycle
 The `Orchestrator` acts as a wrapper around the PM2 programmatic API. It is responsible for:
-1.  **Process Spawning:** Calling `pm2.start()` with sanitized environment variables (e.g., `GCB_CHANNEL_ID`).
-2.  **Log Streaming:** Capturing `stdout/stderr` from PM2 and routing it through the `Bridge` to the `Provider`.
-3.  **Process Monitoring:** Detecting if a Gemini CLI process crashes and notifying the user.
+1.  **Process Spawning:** Calling `pm2.start()` with sanitized environment variables (e.g., `GCB_CHANNEL_ID`) and naming the process `gcb-[projectId]`.
+2.  **Process Management:** Handling graceful shutdown (`pm2.stop` and `pm2.delete`) via the `/stop` command.
+3.  **Process Monitoring & Recovery:** Detecting if a Gemini CLI process crashes. Configuring PM2 for automatic restarts unless the process exits with code 0 (success).
+4.  **Log Tailing:** Capturing `stdout/stderr` from PM2 via `pm2.launchBus()` and routing it through the `Bridge` to the `Provider`.
 
 ### 4.3 Dependency Injection
 The `McpBridge` class should be initialized by injecting a concrete provider:
