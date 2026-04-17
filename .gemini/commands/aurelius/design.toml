@@ -18,5 +18,5 @@ Your task is to define or update the visual and interactive logic in `specs/02-U
 4.  **Reflect**:
     *   If the request is ambiguous, ask the user for clarification.
 
-Follow the **Universal Output Format** defined in your skills.
+You MUST Follow the **Universal Output Format** defined in your skills.
 """

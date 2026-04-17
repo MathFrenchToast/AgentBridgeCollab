@@ -20,3 +20,5 @@ coverage/
 .pm2/
 pm2.log
 pm2.pid
+*.tmp
+*.log

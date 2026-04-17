@@ -227,6 +227,42 @@ describe('ProcessOrchestrator', () => {
     });
   });
 
+  describe('getProjectFromChannel()', () => {
+    it('should return the projectId for a given channelId', async () => {
+      vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
+      vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, []));
+      vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 1, name: 'gcb-test' }]));
+
+      await orchestrator.startProcess('test', 'channel-1');
+      
+      expect(orchestrator.getProjectFromChannel('channel-1')).toBe('test');
+    });
+
+    it('should return undefined if channelId is not found', () => {
+      expect(orchestrator.getProjectFromChannel('unknown')).toBeUndefined();
+    });
+  });
+
+  describe('listProcesses()', () => {
+    it('should return a list of all managed processes', async () => {
+      vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
+      vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, []));
+      vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 1, name: 'mock' }]));
+
+      await orchestrator.startProcess('p1', 'c1');
+      await orchestrator.startProcess('p2', 'c2');
+
+      const list = orchestrator.listProcesses();
+      expect(list).toHaveLength(2);
+      expect(list).toContainEqual(expect.objectContaining({ projectId: 'p1', channelId: 'c1' }));
+      expect(list).toContainEqual(expect.objectContaining({ projectId: 'p2', channelId: 'c2' }));
+    });
+
+    it('should return an empty list if no processes are managed', () => {
+      expect(orchestrator.listProcesses()).toEqual([]);
+    });
+  });
+
   describe('sanitization', () => {
     it('should correctly sanitize names to follow kebab-case alphanumeric', async () => {
        // This can be a public method if we want to test it separately or internal

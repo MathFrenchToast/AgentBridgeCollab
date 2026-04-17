@@ -51,6 +51,7 @@ describe('DiscordProvider', () => {
       DISCORD_GUILD_ID: 'guild-123',
       DISCORD_CATEGORY_ID: 'category-123',
       AUTHORIZED_USERS: 'auth-user-123,another-user',
+      GCB_ASK_TIMEOUT: 1800000,
     };
   });
 
@@ -205,7 +206,7 @@ describe('DiscordProvider', () => {
       expect(mockAwaitMessages).toHaveBeenCalledWith({
         filter: expect.any(Function),
         max: 1,
-        time: 30 * 60 * 1000,
+        time: mockConfig.GCB_ASK_TIMEOUT,
         errors: ['time']
       });
 

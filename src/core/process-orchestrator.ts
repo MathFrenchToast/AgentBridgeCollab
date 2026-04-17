@@ -192,6 +192,25 @@ export class ProcessOrchestrator extends EventEmitter {
   }
 
   /**
+   * Finds a projectId associated with a given channelId.
+   */
+  getProjectFromChannel(channelId: string): string | undefined {
+    for (const [projectId, info] of this.processes.entries()) {
+      if (info.channelId === channelId) {
+        return projectId;
+      }
+    }
+    return undefined;
+  }
+
+  /**
+   * Returns a list of all managed processes.
+   */
+  listProcesses(): ProcessMetadata[] {
+    return Array.from(this.processes.values());
+  }
+
+  /**
    * Disconnects from PM2.
    */
   async disconnect(): Promise<void> {

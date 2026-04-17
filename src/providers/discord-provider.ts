@@ -25,6 +25,10 @@ export class DiscordProvider implements ICollaborationProvider {
     });
   }
 
+  async disconnect(): Promise<void> {
+    await this.client.destroy();
+  }
+
   async createSpace(projectId: string): Promise<string> {
     // We expect DISCORD_GUILD_ID and DISCORD_CATEGORY_ID to exist based on AppConfig validation for discord provider
     const guildId = (this.config as any).DISCORD_GUILD_ID;
@@ -71,7 +75,7 @@ export class DiscordProvider implements ICollaborationProvider {
     await channel.send({ embeds: [embed] });
 
     const filter = (m: Message) => m.author.id !== this.client.user?.id;
-    const timeoutMs = 30 * 60 * 1000; // 30 minutes
+    const timeoutMs = this.config.GCB_ASK_TIMEOUT;
 
     try {
       const collected = await channel.awaitMessages({

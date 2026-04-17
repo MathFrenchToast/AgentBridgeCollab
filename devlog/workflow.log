@@ -7,3 +7,63 @@
 [2026-04-17 12:29:32] SUMMARY: Committed and pushed all pending changes, including specification updates, new MCP tickets, agent configuration improvements, and the automation  script.
 [2026-04-17 12:29:32] NEXT_STEP: aurelius:dev-ticket "US-05-MCP-001 "
 ---
+[2026-04-17 14:02:35] SUMMARY: Updated technical architecture with a new "Security & Infrastructure" section to support Epic 6 requirements.
+[2026-04-17 14:02:35] NEXT_STEP: aurelius:gen-tickets "Security & Validation" , j'ai analysé l'état actuel du projet. Les briques fondamentales (Provider, Orchestrator PM2)  sont terminées. L'étape critique actuelle est l'Epic 5 (**MCP Server & Bridge Logic**), qui  va lier les commandes Discord aux actions de l'orchestrateur via le protocole MCP.
+---
+[2026-04-17 14:03:41] SUMMARY: Generated 3 User Stories for Epic 6 (Security & Validation) and updated the Epic status.
+[2026-04-17 14:03:41] NEXT_STEP: aurelius:groom-ticket "US-06-SEC-001"  & Validation and broken it down into three atomic User Stories, ensuring they align with the PRD's security rules.  I've also updated the Epic status in `specs/04-EPICS.md` to IN_PROGRESS.
+---
+[2026-04-17 15:12:04] SUMMARY: Analyse de l'avancement et identification de  l'Epic 05 (MCP Server & Bridge) comme priorité immédiate.
+[2026-04-17 15:12:04] NEXT_STEP: aurelius: gen-tickets "Epic 05: MCP Server & Bridge"
+---
+[2026-04-17 15:20:56] SUMMARY: N/A
+[2026-04-17 15:20:56] NEXT_STEP: /aurelius:groom-ticket US-05- MCP-001
+---
+[2026-04-17 15:22:16] SUMMARY: Technical grooming of US-05-MCP-001 completed with detailed implementation notes.
+[2026-04-17 15:22:16] NEXT_STEP: aurelius:dev-ticket "US-05-MCP-001"
+---
+[2026-04-17 15:43:35] SUMMARY: N/A
+[2026-04-17 15:43:35] NEXT_STEP: NONE
+---
+[2026-04-17 19:13:16] SUMMARY: Identification des priorités sur le MCP Bridge et le bootstrap de l 'application.
+[2026-04-17 19:13:16] NEXT_STEP: aurelius:gen-tickets "Epic 05 - MCP Server Integration"
+---
+[2026-04-17 19:36:50] SUMMARY: Generated US-05-MCP-007 and US- 05-MCP-008, and verified existing tickets for Epic 05 to ensure full coverage of the  bridge logic and tool registration.
+[2026-04-17 19:36:50] NEXT_STEP: aurelius:groom-ticket "US-05- MCP-002"
+---
+[2026-04-17 19:37:56] SUMMARY: N/A
+[2026-04-17 19:37:56] NEXT_STEP: NONE
+---
+[2026-04-17 20:43:50] SUMMARY: Grooming the next technical tasks for Epic 5 (MCP  Integration) and Epic 6 (Security).
+[2026-04-17 20:43:50] NEXT_STEP: aurelius:groom-ticket "US-05- MCP-002-implement_notify_user"
+---
+[2026-04-17 20:50:02] SUMMARY: Groomed US-05- MCP-002: added technical notes, UI elements, refined context map, and confirmed status as READY.
+[2026-04-17 20:50:02] NEXT_STEP: aurelius:dev-ticket "US-05-MCP-002-implement _notify_user"
+---
+[2026-04-17 20:54:51] SUMMARY: Raffinement des notes techniques des User Stories liées au MCP  (US-05-MCP-003/004) et identification de US-05- MCP-002 comme prochaine tâche de développement.
+[2026-04-17 20:54:51] NEXT_STEP: aurelius:dev-ticket " US-05-MCP-002"
+---
+[2026-04-17 20:56:14] SUMMARY: Implemented the `notify_user ` MCP tool in `McpBridge`, enabling non-blocking notifications to collaboration platforms via `ProcessOrchestrator` and  `CollaborationProvider`.
+[2026-04-17 20:56:14] NEXT_STEP: aurelius:finalize-ticket "US-05-MCP-00 2"
+---
+[2026-04-17 20:57:09] SUMMARY: Reviewed and approved US-05- MCP-002; implementation and tests for notify_user are correct. Moved to DONE.
+[2026-04-17 20:57:09] NEXT_STEP: aurelius:dev-ticket "US-05-MCP-003"  the `git diff`.
+---
+[2026-04-17 20:59:10] SUMMARY: Implemented ask _human tool with blocking logic and configurable timeout, updated config validation and Discord provider.
+[2026-04-17 20:59:10] NEXT_STEP: aurelius:finalize -ticket US-05-MCP-003
+---
+[2026-04-17 21:00:04] SUMMARY: Reviewed and approved US-05-MCP-003; implementation of ask_human tool and  timeout logic is verified with tests.
+[2026-04-17 21:00:04] NEXT_STEP: aurelius:dev-ticket US-05-MCP -004-bridge_commands_to_orchestrator
+---
+[2026-04-17 21:01:20] SUMMARY: Implemented provider command bridging in McpBridge and added  helper methods to ProcessOrchestrator.
+[2026-04-17 21:01:20] NEXT_STEP: aurelius:finalize-ticket US-05- MCP-004-bridge_commands_to_orchestrator.md
+---
+[2026-04-17 21:02:36] SUMMARY: Reviewed and approved US-05-MCP-0 04; provider commands are bridged to the orchestrator and MCP tools are implemented with passing tests.
+[2026-04-17 21:02:36] NEXT_STEP: aurelius:groom-ticket "US-05-MCP-00 5-application_bootstrap.md" I have reviewed the code for **US-05-MCP-0 04**. The implementation successfully bridges provider commands (`/start`, `/stop`, `/status`, `/list`) to `ProcessOr chestrator` actions and includes MCP tools for `notify_user` and `ask_human` with proper timeout management.  Unit tests have been added and are passing. The ticket status has been updated to **DONE**, and it has been moved to the  `backlog/DONE/` directory.
+---
+[2026-04-17 21:03:25] SUMMARY: Groomed US-05-MCP-005, updated ICollaborationProvider with  disconnect(), and added detailed technical notes for bootstrapping.
+[2026-04-17 21:03:25] NEXT_STEP: aurelius:dev-ticket "US -05-MCP-005"
+---
+[2026-04-17 21:05:28] SUMMARY: Implemented main application entry point and bootstrapping with graceful shutdown.
+[2026-04-17 21:05:28] NEXT_STEP: aurelius:finalize-ticket  US-05-MCP-005
+---

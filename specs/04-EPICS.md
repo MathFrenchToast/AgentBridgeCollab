@@ -37,5 +37,5 @@
     *   Implement User ID whitelist check in `DiscordProvider`.
     *   Add project name sanitization in `ProcessOrchestrator`.
     *   Enhance `ConfigValidator` with stricter rules for tokens.
-*   **Status:** BACKLOG
+*   **Status:** IN_PROGRESS
 *   **Ref:** @specs/03-ARCHITECTURE.md#security
