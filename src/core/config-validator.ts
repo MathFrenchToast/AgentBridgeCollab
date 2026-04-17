@@ -7,6 +7,7 @@ dotenv.config();
 const BaseSchema = z.object({
   GCB_PROVIDER_TOKEN: z.string().min(1, 'GCB_PROVIDER_TOKEN is required'),
   GEMINI_API_KEY: z.string().min(1, 'GEMINI_API_KEY is required'),
+  AUTHORIZED_USERS: z.string().optional(),
 });
 
 const DiscordSchema = BaseSchema.extend({

@@ -50,6 +50,7 @@ describe('DiscordProvider', () => {
       GEMINI_API_KEY: 'mock-api-key',
       DISCORD_GUILD_ID: 'guild-123',
       DISCORD_CATEGORY_ID: 'category-123',
+      AUTHORIZED_USERS: 'auth-user-123,another-user',
     };
   });
 
@@ -236,6 +237,92 @@ describe('DiscordProvider', () => {
       clientInstance.user = { id: 'bot-123' } as any;
 
       await expect(provider.waitForInput('channel-123', 'Prompt question')).rejects.toThrow('Timeout waiting for user input');
+    });
+  });
+
+  describe('onCommand()', () => {
+    it('should parse chat input commands and invoke the callback if user is authorized', async () => {
+      const provider = new DiscordProvider(mockConfig);
+      const clientInstance = vi.mocked(Client).mock.instances[0];
+
+      const mockCallback = vi.fn().mockResolvedValue(undefined);
+      provider.onCommand(mockCallback);
+
+      // Simulate client ready to bind interactionCreate
+      const readyHandler = vi.mocked(clientInstance.on).mock.calls.find(call => call[0] === 'ready')?.[1] as Function;
+      if (readyHandler) readyHandler();
+
+      const interactionHandler = vi.mocked(clientInstance.on).mock.calls.find(call => call[0] === 'interactionCreate')?.[1] as Function;
+      expect(interactionHandler).toBeDefined();
+
+      const mockInteraction = {
+        isChatInputCommand: () => true,
+        commandName: 'start',
+        options: {
+          getString: vi.fn().mockReturnValue('project-123')
+        },
+        user: { id: 'auth-user-123' },
+        channelId: 'channel-123',
+        deferReply: vi.fn().mockResolvedValue(undefined),
+      };
+
+      await interactionHandler(mockInteraction);
+
+      expect(mockInteraction.deferReply).toHaveBeenCalled();
+      expect(mockCallback).toHaveBeenCalledWith({
+        type: 'start',
+        projectId: 'project-123',
+        args: [],
+        userId: 'auth-user-123',
+        channelId: 'channel-123',
+      });
+    });
+
+    it('should reject the command if user is not authorized', async () => {
+      const provider = new DiscordProvider(mockConfig);
+      const clientInstance = vi.mocked(Client).mock.instances[0];
+
+      const mockCallback = vi.fn().mockResolvedValue(undefined);
+      provider.onCommand(mockCallback);
+
+      const interactionHandler = vi.mocked(clientInstance.on).mock.calls.find(call => call[0] === 'interactionCreate')?.[1] as Function;
+
+      const mockInteraction = {
+        isChatInputCommand: () => true,
+        commandName: 'start',
+        options: {
+          getString: vi.fn().mockReturnValue('project-123')
+        },
+        user: { id: 'unauthorized-user' },
+        channelId: 'channel-123',
+        reply: vi.fn().mockResolvedValue(undefined),
+      };
+
+      await interactionHandler(mockInteraction);
+
+      expect(mockInteraction.reply).toHaveBeenCalledWith({
+        content: 'You are not authorized to use this command.',
+        ephemeral: true,
+      });
+      expect(mockCallback).not.toHaveBeenCalled();
+    });
+
+    it('should ignore non-chat input commands', async () => {
+      const provider = new DiscordProvider(mockConfig);
+      const clientInstance = vi.mocked(Client).mock.instances[0];
+
+      const mockCallback = vi.fn().mockResolvedValue(undefined);
+      provider.onCommand(mockCallback);
+
+      const interactionHandler = vi.mocked(clientInstance.on).mock.calls.find(call => call[0] === 'interactionCreate')?.[1] as Function;
+
+      const mockInteraction = {
+        isChatInputCommand: () => false,
+      };
+
+      await interactionHandler(mockInteraction);
+
+      expect(mockCallback).not.toHaveBeenCalled();
     });
   });
 });

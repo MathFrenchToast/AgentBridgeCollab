@@ -94,6 +94,35 @@ export class DiscordProvider implements ICollaborationProvider {
   }
 
   onCommand(callback: (command: GcbCommand) => Promise<void>): void {
-    // Placeholder implementation
+    this.client.on('interactionCreate', async (interaction) => {
+      if (!interaction.isChatInputCommand()) return;
+
+      const authorizedUsersStr = (this.config as any).AUTHORIZED_USERS;
+      if (authorizedUsersStr) {
+        const authorizedUsers = authorizedUsersStr.split(',').map((u: string) => u.trim());
+        if (!authorizedUsers.includes(interaction.user.id)) {
+          await interaction.reply({
+            content: 'You are not authorized to use this command.',
+            ephemeral: true,
+          });
+          return;
+        }
+      }
+
+      await interaction.deferReply();
+
+      const commandType = interaction.commandName as GcbCommand['type'];
+      const projectId = interaction.options.getString('id') || undefined;
+
+      const gcbCommand: GcbCommand = {
+        type: commandType,
+        projectId,
+        args: [], // Add parsing for other arguments if needed
+        userId: interaction.user.id,
+        channelId: interaction.channelId,
+      };
+
+      await callback(gcbCommand);
+    });
   }
 }

@@ -1,7 +1,7 @@
 ---
 id: US-03-DISC-004
 title: Implement Discord Slash Command Handling
-status: READY
+status: DONE
 type: feature
 ---
 # Description
@@ -39,3 +39,4 @@ None.
 
 # Reviewer Feedback (Reviewer)
 <!-- If status is REWORK, details on what failed (AT or Code Quality) -->
+y) -->
