@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ProcessOrchestrator } from '@/core/process-orchestrator';
 import pm2 from 'pm2';
+import { EventEmitter } from 'events';
 
 // Mock pm2
 vi.mock('pm2', () => {
@@ -10,6 +11,9 @@ vi.mock('pm2', () => {
       start: vi.fn(),
       disconnect: vi.fn(),
       list: vi.fn(),
+      stop: vi.fn(),
+      delete: vi.fn(),
+      launchBus: vi.fn(),
     }
   };
 });
@@ -20,6 +24,127 @@ describe('ProcessOrchestrator', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     orchestrator = new ProcessOrchestrator();
+  });
+
+  describe('log tailing', () => {
+    it('should emit LOG_EMITTED events when a managed process writes to stdout', async () => {
+      const mockBus = new EventEmitter();
+      vi.mocked(pm2.launchBus).mockImplementation((cb: any) => cb(null, mockBus));
+
+      // Setup tracked process
+      vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
+      vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, []));
+      vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 123, name: 'gcb-test-project' }]));
+      await orchestrator.startProcess('test-project', 'channel-123');
+
+      await orchestrator.startLogTailing();
+
+      const logSpy = vi.fn();
+      orchestrator.on('LOG_EMITTED', logSpy);
+
+      // Simulate log event
+      mockBus.emit('log:out', {
+        process: { name: 'gcb-test-project' },
+        data: 'Hello from agent\n'
+      });
+
+      expect(logSpy).toHaveBeenCalledWith({
+        projectId: 'test-project',
+        channelId: 'channel-123',
+        content: 'Hello from agent',
+        type: 'stdout'
+      });
+    });
+
+    it('should ignore logs from unmanaged processes', async () => {
+      const mockBus = new EventEmitter();
+      vi.mocked(pm2.launchBus).mockImplementation((cb: any) => cb(null, mockBus));
+
+      await orchestrator.startLogTailing();
+
+      const logSpy = vi.fn();
+      orchestrator.on('LOG_EMITTED', logSpy);
+
+      mockBus.emit('log:out', {
+        process: { name: 'other-process' },
+        data: 'Some other log'
+      });
+
+      expect(logSpy).not.toHaveBeenCalled();
+    });
+
+    it('should correctly handle stderr logs', async () => {
+      const mockBus = new EventEmitter();
+      vi.mocked(pm2.launchBus).mockImplementation((cb: any) => cb(null, mockBus));
+
+      // Setup tracked process
+      vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
+      vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, []));
+      vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 123, name: 'gcb-test-project' }]));
+      await orchestrator.startProcess('test-project', 'channel-123');
+
+      await orchestrator.startLogTailing();
+
+      const logSpy = vi.fn();
+      orchestrator.on('LOG_EMITTED', logSpy);
+
+      mockBus.emit('log:err', {
+        process: { name: 'gcb-test-project' },
+        data: 'Error occurred'
+      });
+
+      expect(logSpy).toHaveBeenCalledWith({
+        projectId: 'test-project',
+        channelId: 'channel-123',
+        content: 'Error occurred',
+        type: 'stderr'
+      });
+    });
+  });
+
+  describe('stopProcess()', () => {
+    it('should stop and delete a tracked process and remove it from internal map', async () => {
+      // Setup: Start a process so it's tracked
+      vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
+      vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, []));
+      vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 123, name: 'gcb-test-project' }]));
+      
+      await orchestrator.startProcess('test-project', 'channel-123');
+      expect(orchestrator.getProcessInfo('test-project')).toBeDefined();
+
+      // Mock stop and delete
+      vi.mocked(pm2.stop).mockImplementation((name: any, cb: any) => cb(null));
+      vi.mocked(pm2.delete).mockImplementation((name: any, cb: any) => cb(null));
+
+      await orchestrator.stopProcess('test-project');
+
+      expect(pm2.stop).toHaveBeenCalledWith('gcb-test-project', expect.any(Function));
+      expect(pm2.delete).toHaveBeenCalledWith('gcb-test-project', expect.any(Function));
+      expect(() => orchestrator.getProcessInfo('test-project')).toThrow();
+    });
+
+    it('should be idempotent and handle non-existent processes gracefully', async () => {
+      vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
+      vi.mocked(pm2.stop).mockImplementation((name: any, cb: any) => cb(new Error('process name not found')));
+      vi.mocked(pm2.delete).mockImplementation((name: any, cb: any) => cb(new Error('process name not found')));
+
+      await expect(orchestrator.stopProcess('unknown-project')).resolves.toBeUndefined();
+    });
+
+    it('should remove from internal map even if PM2 fails with inconsistency', async () => {
+      // Setup: Start a process
+      vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
+      vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, []));
+      vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 123, name: 'gcb-test-project' }]));
+      await orchestrator.startProcess('test-project', 'channel-123');
+
+      // Mock PM2 failure
+      vi.mocked(pm2.stop).mockImplementation((name: any, cb: any) => cb(new Error('process name not found')));
+
+      await orchestrator.stopProcess('test-project');
+
+      expect(() => orchestrator.getProcessInfo('test-project')).toThrow();
+    });
   });
 
   describe('init()', () => {

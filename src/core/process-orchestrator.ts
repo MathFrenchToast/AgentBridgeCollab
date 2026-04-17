@@ -1,8 +1,13 @@
 import pm2 from 'pm2';
 import { ProcessMetadata } from '@/types';
+import { EventEmitter } from 'events';
 
-export class ProcessOrchestrator {
+export class ProcessOrchestrator extends EventEmitter {
   private processes: Map<string, ProcessMetadata> = new Map();
+
+  constructor() {
+    super();
+  }
 
   /**
    * Initializes the orchestrator by connecting to PM2 and recovering state.
@@ -37,6 +42,51 @@ export class ProcessOrchestrator {
         });
       });
     });
+  }
+
+  /**
+   * Starts tailing logs for all managed processes.
+   */
+  async startLogTailing(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      pm2.launchBus((err, bus) => {
+        if (err) {
+          return reject(err);
+        }
+
+        bus.on('log:out', (packet) => {
+          this.handleLog(packet, 'stdout');
+        });
+
+        bus.on('log:err', (packet) => {
+          this.handleLog(packet, 'stderr');
+        });
+
+        resolve();
+      });
+    });
+  }
+
+  private handleLog(packet: any, type: 'stdout' | 'stderr'): void {
+    const pm2Name = packet.process?.name;
+    if (!pm2Name || !pm2Name.startsWith('gcb-')) {
+      return;
+    }
+
+    const projectId = pm2Name.replace('gcb-', '');
+    const info = this.processes.get(projectId);
+
+    if (info) {
+      const content = packet.data ? packet.data.toString().trim() : '';
+      if (content) {
+        this.emit('LOG_EMITTED', {
+          projectId,
+          channelId: info.channelId,
+          content,
+          type,
+        });
+      }
+    }
   }
 
   /**
@@ -103,6 +153,42 @@ export class ProcessOrchestrator {
       throw new Error(`Process with ID ${projectId} not found`);
     }
     return info;
+  }
+
+  /**
+   * Gracefully stops and deletes a PM2 process.
+   */
+  async stopProcess(projectId: string): Promise<void> {
+    const pm2Name = `gcb-${projectId}`;
+
+    const isNotFoundError = (err: any) => 
+      err && (err.message?.includes('process name not found') || err.message?.includes('process not found'));
+
+    return new Promise((resolve, reject) => {
+      pm2.connect((connectErr) => {
+        if (connectErr) {
+          return reject(connectErr);
+        }
+
+        // 1. Try to stop
+        pm2.stop(pm2Name, (stopErr) => {
+          if (stopErr && !isNotFoundError(stopErr)) {
+            return reject(stopErr);
+          }
+
+          // 2. Try to delete
+          pm2.delete(pm2Name, (deleteErr) => {
+            if (deleteErr && !isNotFoundError(deleteErr)) {
+              return reject(deleteErr);
+            }
+
+            // 3. Always remove from internal map
+            this.processes.delete(projectId);
+            resolve();
+          });
+        });
+      });
+    });
   }
 
   /**
