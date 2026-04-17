@@ -1,0 +1,1 @@
+Gitflow: Si tu commences un nouveau travail d'analyse alors assure toi de créer une feature branche sur la base de la branche principale

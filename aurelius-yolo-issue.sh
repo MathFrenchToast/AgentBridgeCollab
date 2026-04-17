@@ -1,70 +1,84 @@
 #!/bin/bash
 
-# --- Configuration via Environnement ---
-export GEMINI_MODEL="gemini-3.1-pro-preview"
+# --- Configuration Globale ---
 export GEMINI_YOLO=true
 export GEMINI_NON_INTERACTIVE=true
-# export GEMINI_SESSION="latest" # Optionnel car par défaut sur resume
-
-LOG_FILE="aurelius_flow.log"
-TIMEOUT="30m"
+LOG_FILE="aurelius_yolo.log"
+TIMEOUT_LIMIT="30m"
 
 log() {
-    echo "[$(date +'%T')] $1" | tee -a "$LOG_FILE"
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
 
-# 1. Préparation Issue & Git
+# 1. Préparation de l'environnement
 ISSUE_NUM=$1
-[ -z "$ISSUE_NUM" ] && { echo "Usage: $0 <issue_number>"; exit 1; }
+if [ -z "$ISSUE_NUM" ]; then
+    # Récupération des données de l'issue
+    log "Récupération de l'issue #$ISSUE_NUM via GitHub CLI..."
+    ISSUE_DATA=$(gh issue view "$ISSUE_NUM" --json title,body)
+    ISSUE_BODY=$(echo "$ISSUE_DATA" | jq -r '.body')
+    BRANCH_NAME="fix/issue-$ISSUE_NUM"
+    FIRST_GEMINI_CMD="/aurelius:analyze issue: $ISSUE_NUM body: $ISSUE_BODY"
+elif
+   FIRST_GEMINI_CMD="Quels sont les prochaines actions (tu peux décider que la prochaine action te concerne) ?"
+fi
 
-log "Analyse de l'issue #$ISSUE_NUM..."
-ISSUE_DATA=$(gh issue view "$ISSUE_NUM" --json title,body)
-ISSUE_BODY=$(echo "$ISSUE_DATA" | jq -r '.body')
-BRANCH_NAME="fix/issue-$ISSUE_NUM"
 
+# Setup Git
+log "Préparation de la branche $BRANCH_NAME..."
 git checkout develop && git pull
 git checkout -b "$BRANCH_NAME" || git checkout "$BRANCH_NAME"
 
-# 2. Fonction d'exécution robuste
+# --- Fonction d'exécution avec gestion Timeout & Resume ---
 execute_gemini() {
     local cmd="$1"
-    local attempt=$2
-    local out="last_run.tmp"
-
-    log "Run: $cmd (Attempt $attempt)"
+    local output="last_run.tmp"
     
-    # On utilise 'timeout' pour surveiller le process
-    timeout $TIMEOUT gemini "$cmd" > "$out" 2>&1
+    log "Lancement : $cmd"
+    
+    # Exécution avec timeout
+    timeout $TIMEOUT_LIMIT gemini "$cmd" > "$output" 2>&1
     local status=$?
 
+    # Gestion du Timeout (124 = code retour de 'timeout')
     if [ $status -eq 124 ]; then
-        if [ $attempt -eq 1 ]; then
-            log "Timeout! Tentative de reprise..."
-            execute_gemini "--resume \"Le temps est écoulé, termine ton analyse précédente.\"" 2
-        else
-            log "Échec critique : Second timeout sur resume."
-            exit 1
-        fi
+        log "TIMEOUT atteint ($TIMEOUT_LIMIT). Tentative de reprise (resume)..."
+        # Le resume reprend la session 'latest' par défaut
+        gemini --resume "Le temps est écoulé, termine l'action en cours." > "$output" 2>&1
     fi
-    
-    cat "$out" >> "$LOG_FILE"
-    return 0
+
+    cat "$output" >> "$LOG_FILE"
 }
 
-# 3. Chaînage des actions
-# Premier appel : Analyze
-execute_gemini "/aurelius:analyze issue: $ISSUE_NUM body: $ISSUE_BODY" 1
+# 2. PHASE D'ANALYSE (Modèle Pro Forcé)
+log ">>> PHASE 1 : ANALYSE (Modèle : gemini-3.1-pro-preview)"
+export GEMINI_MODEL="gemini-3.1-pro-preview"
 
-# Extraction du NEXT_STEP
+execute_gemini $FIRST_GEMINI_CMD
+
+# 3. BOUCLE DE TRAVAIL (Modèle en sélection AUTO)
+log ">>> PHASE 2 : EXÉCUTION (Modèle : Auto-selection)"
+# On désactive le forçage du modèle pour laisser le CLI décider
+unset GEMINI_MODEL 
+
+# Extraction du premier NEXT_STEP
 NEXT_STEP=$(grep "\[NEXT_STEP\]:" last_run.tmp | cut -d':' -f2- | tr -d ' "')
 
-if [[ $NEXT_STEP == aurelius:* ]]; then
+while [[ -n "$NEXT_STEP" ]]; do
     log "Action suivante détectée : $NEXT_STEP"
-    # On lance l'action suivante (dev-ticket, groom-ticket, etc.)
-    # Note : Le modèle passera en auto-sélection si on ne force pas GEMINI_MODEL ici
-    execute_gemini "/$NEXT_STEP" 1
-else
-    log "Fin de cycle : Pas de [NEXT_STEP] exploitable."
-fi
+    
+    # Appel de la commande (on préfixe par / si c'est une commande aurelius)
+    if [[ $NEXT_STEP == aurelius:* ]]; then
+        execute_gemini "/$NEXT_STEP"
+    else
+        execute_gemini "$NEXT_STEP"
+    fi
 
-log "Workflow terminé sur $BRANCH_NAME"
+    # Recherche du prochain step dans la nouvelle sortie
+    NEXT_STEP=$(grep "\[NEXT_STEP\]:" last_run.tmp | cut -d':' -f2- | tr -d ' "')
+    
+    # Sécurité : si la sortie est identique pour éviter les boucles infinies
+    # (Optionnel : ajouter un compteur d'itérations ici si nécessaire)
+done
+
+log "Workflow terminé pour l'issue #$ISSUE_NUM sur la branche $BRANCH_NAME."
