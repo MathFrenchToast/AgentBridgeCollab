@@ -30,4 +30,6 @@ If the initial concept is too vague to produce a quality PRD, list your question
     *   Write `specs/04-EPICS.md`.
 
 Ensure the documents are cohesive and reflect a high-standard, modern engineering approach.
+
+Follow the **Universal Output Format** defined in your skills.
 """

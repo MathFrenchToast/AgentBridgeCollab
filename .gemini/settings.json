@@ -22,15 +22,15 @@
   "general": {
     "defaultApprovalMode": "auto_edit"
   },
-    "hooks": {
-    "AfterTool": [
+  "hooks": {
+    "AfterAgent": [
       {
         "matcher": "*",
         "hooks": [
           {
-            "name": "log-action",
+            "name": "log-workflow",
             "type": "command",
-            "command": "node .gemini/hooks/log-action.js"
+            "command": "node .gemini/hooks/log-workflow.cjs"
           }
         ]
       }

@@ -20,5 +20,5 @@ Your task is to evaluate this request and update the project specifications.
 
 **Constraint:** DO NOT write any implementation code or create individual User Story tickets yet. Just update the specifications and Epics.
 
-Output a summary of the analysis and the files updated.
+Follow the **Universal Output Format** defined in your skills.
 """

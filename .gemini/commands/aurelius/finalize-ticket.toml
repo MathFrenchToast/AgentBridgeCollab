@@ -18,4 +18,6 @@ Your task is to review the work done for the active ticket in `backlog/WIP/`.
     *   Append detailed feedback in the `# Reviewer Feedback` section of the ticket.
     *   Keep the ticket in `backlog/WIP/`.
     *   Explain clearly to the developer what needs to be fixed.
+
+Follow the **Universal Output Format** defined in your skills.
 """

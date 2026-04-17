@@ -18,5 +18,5 @@ Your task is to define or update the visual and interactive logic in `specs/02-U
 4.  **Reflect**:
     *   If the request is ambiguous, ask the user for clarification.
 
-Output the updated `specs/02-UX-DESIGN.md` or the specific design notes for the ticket.
+Follow the **Universal Output Format** defined in your skills.
 """

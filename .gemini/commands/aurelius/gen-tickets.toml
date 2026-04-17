@@ -25,5 +25,5 @@ Instructions:
     *   **Acceptance Criteria**: Ensure they are testable (Scenario: Given/When/Then).
 4.  **Update Epic Status**: Remind the user to mark this Epic as 'IN_PROGRESS' or 'DONE' (stories generated) in `specs/04-EPICS.md`.
 
-Output a list of the newly created ticket files.
+Follow the **Universal Output Format** defined in your skills.
 """

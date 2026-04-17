@@ -18,5 +18,5 @@ Your task is to perform the technical grooming of this User Story.
     *   If the ticket is about a UI add the UI part in the ticket 
     *   Set status to `READY`.
 
-Output a confirmation once updated.
+Follow the **Universal Output Format** defined in your skills.
 """
