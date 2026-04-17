@@ -102,3 +102,22 @@ const bridge = new McpBridge(provider, orchestrator);
     *   Each process must be named using the `projectId` for easy identification.
 *   **Sanitization:** Strict shell command sanitization for PM2 process names using a whitelist of allowed characters (a-z, 0-9, dash).
 
+## 6. Security & Infrastructure
+
+### 6.1 User Authorization (Whitelist)
+To prevent unauthorized use, the `DiscordProvider` must implement a mandatory whitelist check:
+- **`AUTHORIZED_USER_IDS`**: A comma-separated list of Discord User IDs in the `.env` file.
+- **Validation**: Any command received via `onCommand` MUST be dropped if the `userId` is not present in the whitelist.
+- **Audit**: Log unauthorized attempts with the user's tag and ID for audit purposes.
+
+### 6.2 Sanitization & Injection Prevention
+The `ProcessOrchestrator` is responsible for sanitizing all user-provided strings before passing them to the PM2 API or shell:
+- **`projectId`**: MUST only contain alphanumeric characters and hyphens. Use a regex to enforce this: `/^[a-z0-9-]+$/`.
+- **`args`**: Any user-provided arguments must be treated as strings and escaped if used in a shell context.
+
+### 6.3 Configuration Integrity
+The `ConfigValidator` (using Zod) must ensure the following:
+- **Presence of Tokens**: `DISCORD_TOKEN` and `GEMINI_API_KEY` must be non-empty.
+- **Format**: `DISCORD_TOKEN` should match the expected Discord token format.
+- **Defaults**: Sensible defaults for `RESTART_DELAY` (e.g., 3000ms) to prevent rapid crash loops.
+
