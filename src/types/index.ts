@@ -28,6 +28,12 @@ export interface InputRequestPayload {
   channelId: string;
 }
 
+export interface ProcessMetadata {
+  pm2Id: number;
+  projectId: string;
+  channelId: string;
+}
+
 export type GcbEvent =
   | { type: 'LOG_EMITTED'; payload: LogPayload }
   | { type: 'STATUS_CHANGED'; payload: StatusPayload }
