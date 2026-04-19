@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 describe('Routing Events and Payloads', () => {
-    it('should define GcbEventName with the required events', () => {
-        // This will fail to compile if GcbEventName is not defined
+    it('should define AbcEventName with the required events', () => {
+        // This will fail to compile if AbcEventName is not defined
         const events = ['LOG_EMITTED', 'STATUS_CHANGED', 'INPUT_REQUESTED'];
         expect(events).toContain('LOG_EMITTED');
         expect(events).toContain('STATUS_CHANGED');

@@ -9,7 +9,7 @@ As a Developer, I want to initialize an MCP Server so that multiple Gemini CLI i
 
 # Context Map
 - `src/core/mcp-bridge.ts`: Main implementation of the McpBridge and server management logic.
-- `src/types/index.ts`: Shared types for GCB events and commands.
+- `src/types/index.ts`: Shared types for ABC events and commands.
 - `specs/03-ARCHITECTURE.md`: Technical reference for MCP flow.
 
 # Acceptance Criteria (DoD)

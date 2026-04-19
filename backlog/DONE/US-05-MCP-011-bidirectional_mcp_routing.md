@@ -12,12 +12,12 @@ As a Bridge, I want to route MCP JSON-RPC messages between the Gemini CLI and th
 > Specific files for this story:
 > *   @src/core/mcp-bridge.ts: Main entry point for MCP Server multiplexing.
 > *   @src/core/process-orchestrator.ts: Provides the `sendToProcess` method and log streaming.
-> *   @src/core/launcher.ts: Receives IPC messages (topic `gcb:stdin`) and writes to agent `stdin`.
+> *   @src/core/launcher.ts: Receives IPC messages (topic `abc:stdin`) and writes to agent `stdin`.
 > *   @specs/03-ARCHITECTURE.md (Section 4.5): Architectural blueprint for bidirectional communication.
 
 # Acceptance Criteria (DoD)
 - [x] **Scenario 1: Inbound Path (Agent to Bridge)**
-    - Given a Gemini CLI process managed by GCB
+    - Given a Gemini CLI process managed by ABC
     - When the agent writes an MCP JSON-RPC message to its `stdout`
     - Then the `ProcessOrchestrator` should capture it as a log line
     - And the `McpBridge` should detect it as a JSON-RPC message
@@ -41,7 +41,7 @@ As a Bridge, I want to route MCP JSON-RPC messages between the Gemini CLI and th
 - **Custom Transport**: Implement `IpcTransport` (or similar name) extending `@modelcontextprotocol/sdk`'s `Transport`.
     - `send(message)`: Calls `orchestrator.sendToProcess(projectId, JSON.stringify(message))`.
     - `onData`: Triggered when `McpBridge` parses an inbound JSON-RPC message.
-- **IPC Topic**: Ensure the communication uses the `gcb:stdin` topic as defined in Architecture Section 4.5.
+- **IPC Topic**: Ensure the communication uses the `abc:stdin` topic as defined in Architecture Section 4.5.
 - **Multiplexing**: The `McpBridge` must maintain a `Map<string, McpServer>` to ensure strict isolation between project sessions.
 - **Lifecycle Management**:
     - `McpServer` instances should be created upon project start.

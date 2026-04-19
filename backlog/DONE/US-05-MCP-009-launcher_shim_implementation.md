@@ -25,7 +25,7 @@ As a Developer, I want a Launcher Shim script that wraps the Gemini CLI process 
     - And forward all `stdout` and `stderr` from the child to the shim's own output streams.
 - [x] **Scenario 2: IPC to Stdin Bridging**
     - Given a running child process managed by the shim
-    - When the shim receives an IPC message with topic `gcb:stdin`
+    - When the shim receives an IPC message with topic `abc:stdin`
     - Then it should write the message payload (JSON-RPC string) followed by a newline to the child process's `stdin`.
 - [x] **Scenario 3: Graceful Exit Propagation**
     - Given the child process exits
@@ -39,7 +39,7 @@ As a Developer, I want a Launcher Shim script that wraps the Gemini CLI process 
 # Technical Notes (Architect)
 - **Implementation**: Create `src/core/launcher.ts`.
 - **Spawning**: Use `child_process.spawn(command, args, { stdio: ['pipe', 'inherit', 'inherit'] })`.
-- **IPC Handling**: Use `process.on('message', (packet: any) => { ... })`. PM2 sends packets where the payload is often in `packet.data` or similar, but according to our architecture, we look for `packet.topic === 'gcb:stdin'`.
+- **IPC Handling**: Use `process.on('message', (packet: any) => { ... })`. PM2 sends packets where the payload is often in `packet.data` or similar, but according to our architecture, we look for `packet.topic === 'abc:stdin'`.
 - **Message Format**: The payload received via IPC should be written directly to `child.stdin.write(payload + '\n')`.
 - **Signal Forwarding**: Listen for `SIGINT`, `SIGTERM` on the shim process and forward them to the child process to ensure graceful shutdown of the Gemini CLI.
 - **Exit Code**: Capture `child.on('exit', (code) => process.exit(code ?? 1))`.

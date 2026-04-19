@@ -18,8 +18,8 @@ As a Developer, I want the Orchestrator to spawn a new PM2 process with a saniti
     - Given a valid, unsanitized `projectName` (e.g., `My Cool Project!`) and a `channelId`
     - When `startProcess(projectName, channelId)` is called
     - Then the orchestrator should sanitize the name to create a `projectId` (e.g., `my-cool-project`)
-    - And it should spawn a PM2 process named `gcb-my-cool-project`
-    - And it should pass `GCB_CHANNEL_ID` and `GCB_PROJECT_ID` as environment variables to the new process.
+    - And it should spawn a PM2 process named `abc-my-cool-project`
+    - And it should pass `ABC_CHANNEL_ID` and `ABC_PROJECT_ID` as environment variables to the new process.
 - [x] Scenario 2: Process Name Sanitization
     - Given a `projectName` with special characters or spaces
     - When the name is sanitized
@@ -37,10 +37,10 @@ None.
 - **Connection:** Before calling `pm2.start()`, ensure `pm2.connect()` resolves successfully. Provide a way to disconnect (`pm2.disconnect()`) for graceful shutdown of the orchestrator itself if needed.
 - **Sanitization:** Use a simple RegEx like `name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')` for the `projectId`. 
 - **Start Config:** 
-  - `name`: Must be \`gcb-${projectId}\`
+  - `name`: Must be \`abc-${projectId}\`
   - `script`: The target script to run (for now, assume a placeholder path like `gemini` or an echo script for testing, pass it via environment or config).
   - `autorestart`: `false` (PM2's default autorestart doesn't cleanly support the "restart unless exit 0" natively out-of-the-box without `stop_exit_codes`, use `stop_exit_codes: [0]` if supported, otherwise just rely on `autorestart: true` and `stop_exit_codes: [0]`). *Correction:* PM2 supports `stop_exit_codes: [0]`. Use `autorestart: true` and `stop_exit_codes: [0]`.
-  - `env`: Inject `GCB_CHANNEL_ID` and `GCB_PROJECT_ID`.
+  - `env`: Inject `ABC_CHANNEL_ID` and `ABC_PROJECT_ID`.
 - **Promises:** Wrap PM2 callback-based functions (`pm2.connect`, `pm2.start`) in `Promise`s to maintain modern `async/await` syntax.
 
 # Reviewer Feedback (Reviewer)

@@ -49,8 +49,8 @@ describe('ProcessOrchestrator.syncWithPersistentStore', () => {
     vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, [
       {
         pm_id: 101,
-        name: 'gcb-project-1',
-        pm2_env: { GCB_CHANNEL_ID: 'channel-1', GCB_PROJECT_ID: 'project-1' }
+        name: 'abc-project-1',
+        pm2_env: { ABC_CHANNEL_ID: 'channel-1', ABC_PROJECT_ID: 'project-1' }
       }
     ]));
 
@@ -94,15 +94,15 @@ describe('ProcessOrchestrator.syncWithPersistentStore', () => {
     vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, [
       {
         pm_id: 102,
-        name: 'gcb-orphan',
-        pm2_env: { GCB_CHANNEL_ID: 'channel-orphan', GCB_PROJECT_ID: 'orphan' }
+        name: 'abc-orphan',
+        pm2_env: { ABC_CHANNEL_ID: 'channel-orphan', ABC_PROJECT_ID: 'orphan' }
       }
     ]));
 
     await orchestrator.init();
     await (orchestrator as any).syncWithPersistentStore();
 
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Orphaned PM2 process found: gcb-orphan'));
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Orphaned PM2 process found: abc-orphan'));
     
     // It should still be in memory as init() added it, but maybe we want to remove it?
     // Acceptance criteria says: "log a warning or attempt to re-register the mapping"

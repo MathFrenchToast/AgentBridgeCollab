@@ -1,7 +1,7 @@
-# Project Brief: Gemini Collaboration Bridge (GCB)
+# Project Brief: Agent Bridge Collaboration (ABC)
 
 ## 1. Product Vision
-To enable seamless and secure interaction between autonomous AI agents running in sandboxed Ubuntu environments and human developers via their existing collaboration platforms (Discord, Slack, Teams). GCB turns a headless CLI agent into a conversational, observable, and controllable teammate.
+To enable seamless and secure interaction between autonomous AI agents running in sandboxed Ubuntu environments and human developers via their existing collaboration platforms (Discord, Slack, Teams). ABC turns a headless CLI agent into a conversational, observable, and controllable teammate.
 
 ## 2. Target Audience
 - **DevOps/SRE:** Monitoring agent progress on infrastructure tasks.

@@ -29,7 +29,7 @@ describe('ProcessOrchestrator Lifecycle Events', () => {
     vi.mocked(pm2.launchBus).mockImplementation((cb: any) => cb(null, mockBus));
     vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
     vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, []));
-    vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 123, name: 'gcb-test-project' }]));
+    vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 123, name: 'abc-test-project' }]));
 
     await orchestrator.startProcess('test-project', 'channel-123');
     await orchestrator.startLogTailing();
@@ -41,7 +41,7 @@ describe('ProcessOrchestrator Lifecycle Events', () => {
 
     mockBus.emit('process:event', {
       event: 'online',
-      process: { name: 'gcb-test-project' }
+      process: { name: 'abc-test-project' }
     });
 
     expect(onlineSpy).toHaveBeenCalledWith({
@@ -57,7 +57,7 @@ describe('ProcessOrchestrator Lifecycle Events', () => {
     mockBus.emit('process:event', {
       event: 'exit',
       process: { 
-        name: 'gcb-test-project',
+        name: 'abc-test-project',
         status: 'stopped',
         exit_code: 0 
       }
@@ -76,7 +76,7 @@ describe('ProcessOrchestrator Lifecycle Events', () => {
     mockBus.emit('process:event', {
       event: 'exit',
       process: { 
-        name: 'gcb-test-project',
+        name: 'abc-test-project',
         status: 'errored',
         exit_code: 1 
       }

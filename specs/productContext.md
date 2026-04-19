@@ -1,8 +1,8 @@
 # Product Context
 
 ## 1. Project Identity
-*   **Name:** Gemini Collaboration Bridge (GCB)
-*   **Core Value:** Provide a secure, observable, and remote-controllable interface for autonomous Gemini CLI agents via standard collaboration platforms (Discord, Slack, Teams).
+*   **Name:** Agent Bridge Collaboration (ABC)
+*   **Core Value:** Provide a secure, observable, and remote-controllable interface for autonomous agents (e.g., Gemini CLI, Claude Code, etc.) via standard collaboration platforms (Discord, Slack, Teams).
 *   **Target Audience:** DevOps engineers, AI researchers, and developers running autonomous agents in sandboxed environments.
 
 ## 2. High-Level Architecture
@@ -19,6 +19,6 @@
     *   **Event-Driven:** Using Node.js `EventEmitter` for real-time status routing.
 
 ## 3. Core Domain Flows
-1.  **Project Initiation:** User sends `/start <name> <prompt>` in Discord -> GCB creates a project-specific channel -> GCB spawns a PM2 process running Gemini CLI -> Gemini connects back to GCB via MCP stdio.
-2.  **Human-in-the-Loop (HITL):** Gemini calls `ask_human` tool -> GCB pauses execution -> GCB pings the user in the project channel -> User replies -> GCB returns the input to Gemini via standard JSON-RPC.
-3.  **Real-time Observability:** Gemini emits logs to stdout/stderr -> PM2 captures logs -> GCB streams them to the corresponding platform channel/thread.
+1.  **Project Initiation:** User sends `/start <name> <prompt>` in Discord -> ABC creates a project-specific channel -> ABC spawns a PM2 process running an autonomous agent -> The agent connects back to ABC via MCP stdio.
+2.  **Human-in-the-Loop (HITL):** The agent calls `ask_human` tool -> ABC pauses execution -> ABC pings the user in the project channel -> User replies -> ABC returns the input to the agent via standard JSON-RPC.
+3.  **Real-time Observability:** The agent emits logs to stdout/stderr -> PM2 captures logs -> ABC streams them to the corresponding platform channel/thread.

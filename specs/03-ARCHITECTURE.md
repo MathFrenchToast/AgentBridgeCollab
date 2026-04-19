@@ -1,4 +1,4 @@
-# Technical Architecture: Gemini Collaboration Bridge (GCB)
+# Technical Architecture: Agent Bridge Collaboration (ABC)
 
 ## 1. Tech Stack
 *   **Runtime:** Node.js 20+ (LTS)
@@ -37,10 +37,10 @@
 ### 4.1 ICollaborationProvider Interface
 Every platform (Discord, Slack, etc.) MUST implement this interface to ensure the Bridge Core remains platform-agnostic:
 ```typescript
-export type GcbCommandType = 'start' | 'stop' | 'status' | 'list';
+export type AbcCommandType = 'start' | 'stop' | 'status' | 'list';
 
-export interface GcbCommand {
-  type: GcbCommandType;
+export interface AbcCommand {
+  type: AbcCommandType;
   projectId?: string;
   args?: string[];
   userId: string;
@@ -59,19 +59,19 @@ export interface ICollaborationProvider {
   /** Blocking call to wait for human input in a specific space */
   waitForInput(spaceId: string, prompt: string): Promise<string>;
   /** Listen for slash commands or mentions from users */
-  onCommand(callback: (command: GcbCommand) => Promise<void>): void;
+  onCommand(callback: (command: AbcCommand) => Promise<void>): void;
 }
 ```
 
 ### 4.2 PM2 Orchestrator Lifecycle
 The `Orchestrator` acts as a wrapper around the PM2 programmatic API. It is responsible for:
-1.  **Process Spawning:** Calling `pm2.start()` with sanitized environment variables (e.g., `GCB_CHANNEL_ID`) and naming the process `gcb-[projectId]`.
+1.  **Process Spawning:** Calling `pm2.start()` with sanitized environment variables (e.g., `ABC_CHANNEL_ID`) and naming the process `abc-[projectId]`.
 2.  **Process Management:** Handling graceful shutdown (`pm2.stop` and `pm2.delete`) via the `/stop` command.
-3.  **Process Monitoring & Recovery:** Detecting if a Gemini CLI process crashes. Configuring PM2 for automatic restarts unless the process exits with code 0 (success).
+3.  **Process Monitoring & Recovery:** Detecting if a autonomous agent process crashes. Configuring PM2 for automatic restarts unless the process exits with code 0 (success).
 4.  **Log Tailing:** Capturing `stdout/stderr` from PM2 via `pm2.launchBus()` and routing it through the `Bridge` to the `Provider`.
 
 ### 4.3 McpBridge Logic & Tooling
-The `McpBridge` implements the MCP Server protocol. It bridges the gap between the Gemini CLI (running as a PM2 process) and the Collaboration Provider (Discord).
+The `McpBridge` implements the MCP Server protocol. It bridges the gap between the autonomous agent (running as a PM2 process) and the Collaboration Provider (Discord).
 
 #### MCP Tools Definition
 1.  **`notify_user`**:
@@ -82,11 +82,11 @@ The `McpBridge` implements the MCP Server protocol. It bridges the gap between t
     *   **Arguments**: `{ "prompt": "string" }`
 
 #### Flow: Tool Execution
-1.  Gemini CLI calls a tool via MCP stdio.
+1.  autonomous agent calls a tool via MCP stdio.
 2.  `McpBridge` receives the tool call.
 3.  `McpBridge` identifies the `projectId` (from the environment variables of the calling process).
 4.  `McpBridge` calls the corresponding method on the `ICollaborationProvider`.
-5.  `McpBridge` returns the result back to Gemini CLI.
+5.  `McpBridge` returns the result back to autonomous agent.
 
 ### 4.4 Dependency Injection
 The `McpBridge` class should be initialized by injecting a concrete provider and the orchestrator:
@@ -97,9 +97,9 @@ const bridge = new McpBridge(provider, orchestrator);
 ```
 
 ### 4.5 Bidirectional MCP Communication (Stdio Bridge)
-Since PM2 does not natively support continuous `stdin` piping via its programmatic API, GCB implements a **Stdio Bridge** using a Launcher Shim:
+Since PM2 does not natively support continuous `stdin` piping via its programmatic API, ABC implements a **Stdio Bridge** using a Launcher Shim:
 
-1.  **Launcher Shim (`src/core/launcher.ts`)**: Instead of spawning the Gemini CLI directly, the `ProcessOrchestrator` starts this shim. The shim spawns the Gemini CLI as a child process and maintains a persistent `stdin` connection.
+1.  **Launcher Shim (`src/core/launcher.ts`)**: Instead of spawning the autonomous agent directly, the `ProcessOrchestrator` starts this shim. The shim spawns the autonomous agent as a child process and maintains a persistent `stdin` connection.
 2.  **Inbound Path (Agent -> Bridge)**: 
     *   Agent writes to `stdout`.
     *   PM2 captures the output.
@@ -108,11 +108,11 @@ Since PM2 does not natively support continuous `stdin` piping via its programmat
 3.  **Outbound Path (Bridge -> Agent)**:
     *   `McpBridge` writes to the MCP Server's output stream.
     *   `ProcessOrchestrator.sendToProcess()` is called.
-    *   Orchestrator uses `pm2.sendDataToProcessId()` to send an IPC message (topic: `gcb:stdin`).
+    *   Orchestrator uses `pm2.sendDataToProcessId()` to send an IPC message (topic: `abc:stdin`).
     *   Launcher Shim receives the IPC message and writes the payload to the Agent's `stdin`.
 
 ### 4.6 Persistence Layer (Proposed)
-To support system recovery and advanced multi-tenant features, GCB will incorporate a lightweight Persistence Layer:
+To support system recovery and advanced multi-tenant features, ABC will incorporate a lightweight Persistence Layer:
 *   **Technology:** SQLite (via `better-sqlite3`) for robust, local, and file-based storage.
 *   **Schema:**
     *   `projects`: `id`, `name`, `status`, `created_at`, `owner_id`.
@@ -146,8 +146,8 @@ The `StateStore` will maintain an `authorized_users` table. The `McpBridge` will
 
 ### 6.5 Multi-Provider Routing
 The `ProviderFactory` supports `slack` as a valid provider, utilizing the Slack Bolt SDK. 
-- **Isolation**: Slack isolation is achieved through **threads** within a single channel specified by `SLACK_CHANNEL_ID`. The `space_id` in GCB corresponds to the `thread_ts` (timestamp of the initial message that started the thread).
-- **Socket Mode**: GCB uses Slack's Socket Mode for connectivity, requiring a `SLACK_APP_TOKEN` and `SLACK_BOT_TOKEN`. This eliminates the need for public HTTP endpoints.
+- **Isolation**: Slack isolation is achieved through **threads** within a single channel specified by `SLACK_CHANNEL_ID`. The `space_id` in ABC corresponds to the `thread_ts` (timestamp of the initial message that started the thread).
+- **Socket Mode**: ABC uses Slack's Socket Mode for connectivity, requiring a `SLACK_APP_TOKEN` and `SLACK_BOT_TOKEN`. This eliminates the need for public HTTP endpoints.
 - **Workflow**:
     1.  `createSpace` posts an initial "Project [ID] started" message to the main channel.
     2.  The timestamp (`ts`) of that message is stored as the project's `space_id`.

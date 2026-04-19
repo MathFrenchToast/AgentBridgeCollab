@@ -52,7 +52,7 @@ describe('Launcher Shim', () => {
     const messageListener = messageCall![1] as Function;
 
     const payload = '{"jsonrpc": "2.0", "method": "test"}';
-    messageListener({ topic: 'gcb:stdin', data: payload });
+    messageListener({ topic: 'abc:stdin', data: payload });
 
     expect(mockChild.stdin.write).toHaveBeenCalledWith(payload + '\n');
   });

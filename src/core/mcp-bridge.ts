@@ -68,7 +68,7 @@ export class McpBridge {
   }
 
   private getProjectContext(projectId?: string): ProjectContext {
-    const id = projectId || process.env.GCB_PROJECT_ID;
+    const id = projectId || process.env.ABC_PROJECT_ID;
     if (!id) {
       throw new Error("Project ID missing from call context and environment");
     }
@@ -114,7 +114,7 @@ export class McpBridge {
       handler: async (args, projectId) => {
         try {
           const context = this.getProjectContext(projectId);
-          const timeoutMs = this.config?.GCB_ASK_TIMEOUT || parseInt(process.env.GCB_ASK_TIMEOUT || "1800000", 10);
+          const timeoutMs = this.config?.ABC_ASK_TIMEOUT || parseInt(process.env.ABC_ASK_TIMEOUT || "1800000", 10);
 
           const timeoutPromise = new Promise((_, reject) => {
             setTimeout(() => reject(new Error("Timeout waiting for user input")), timeoutMs);

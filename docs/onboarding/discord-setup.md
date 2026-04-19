@@ -1,19 +1,19 @@
 # Discord Setup Guide
 
-This guide details how to create and configure a Discord Bot for the Gemini Collaboration Bridge.
+This guide details how to create and configure a Discord Bot for the Agent Bridge Collaboration.
 
 ## Step 1: Create Application
 
 1. Go to the [Discord Developer Portal](https://discord.com/developers/applications).
-2. Click **New Application** and give it a name (e.g., "GCB-Agent").
+2. Click **New Application** and give it a name (e.g., "ABC-Agent").
 3. Navigate to **Installation** and ensure "Guild Install" is allowed.
 
 ## Step 2: Bot Configuration
 
 1. In the sidebar, click **Bot**.
-2. **Reset Token** (or copy it) - this is your `GCB_PROVIDER_TOKEN`.
+2. **Reset Token** (or copy it) - this is your `ABC_PROVIDER_TOKEN`.
 3. **Privileged Gateway Intents**: You MUST enable **Message Content Intent**.
-   - *Why?* GCB needs to read user responses for Human-in-the-Loop tasks.
+   - *Why?* ABC needs to read user responses for Human-in-the-Loop tasks.
 
 ## Step 3: OAuth2 & Permissions
 

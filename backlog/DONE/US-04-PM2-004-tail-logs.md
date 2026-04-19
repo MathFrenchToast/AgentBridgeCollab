@@ -15,12 +15,12 @@ As a Developer, I want the Orchestrator to tail the logs of managed PM2 processe
 
 # Acceptance Criteria (DoD)
 - [x] **Scenario 1: Capture Stdout/Stderr**
-    - Given an active managed PM2 process (prefixed with `gcb-`)
+    - Given an active managed PM2 process (prefixed with `abc-`)
     - When the process writes to `stdout` or `stderr`
     - Then the orchestrator should capture this output via `pm2.launchBus()`
     - And it should emit a structured log event containing the `projectId`, `channelId`, and the log `content`.
 - [x] **Scenario 2: Ignore Unmanaged Processes**
-    - Given a log event from a PM2 process not prefixed with `gcb-`
+    - Given a log event from a PM2 process not prefixed with `abc-`
     - When the orchestrator processes the event bus
     - Then it should ignore the log and NOT emit an event.
 - [x] **Scenario 3: Log Sanitization**
@@ -35,8 +35,8 @@ None.
 - **Event Bus:** Use `pm2.launchBus((err, bus) => { ... })` to subscribe to PM2 events.
 - **Log Listeners:** Listen for `log:out` and `log:err` events on the bus.
 - **Filtering:** 
-    - The `packet.process.name` MUST start with `gcb-`.
-    - Extract `projectId` by removing the `gcb-` prefix.
+    - The `packet.process.name` MUST start with `abc-`.
+    - Extract `projectId` by removing the `abc-` prefix.
 - **Metadata:** Use the internal state map (from US-04-PM2-002) to resolve the `channelId` associated with the `projectId`.
 - **Event Emission:** `ProcessOrchestrator` should extend `EventEmitter` or accept a callback in its constructor/method to bubble up logs.
 - **Payload Structure:** 

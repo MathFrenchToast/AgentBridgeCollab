@@ -1,4 +1,4 @@
-import { GcbCommand } from '@/types';
+import { AbcCommand } from '@/types';
 
 export interface ICollaborationProvider {
   /** Initialize connection to the platform */
@@ -12,7 +12,7 @@ export interface ICollaborationProvider {
   /** Blocking call to wait for human input in a specific space */
   waitForInput(spaceId: string, prompt: string): Promise<string>;
   /** Listen for slash commands or mentions from users */
-  onCommand(callback: (command: GcbCommand) => Promise<void>): void;
+  onCommand(callback: (command: AbcCommand) => Promise<void>): void;
 }
 
-export { GcbCommand };
+export { AbcCommand };

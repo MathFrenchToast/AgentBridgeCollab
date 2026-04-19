@@ -17,7 +17,7 @@ As a Developer, I want to use Slack as a collaboration platform so that teams us
 # Acceptance Criteria (DoD)
 
 - [ ] **Scenario 1: Successful connection to Slack**
-    - Given `GCB_PROVIDER="slack"` and valid `SLACK_BOT_TOKEN`/`SLACK_APP_TOKEN`
+    - Given `ABC_PROVIDER="slack"` and valid `SLACK_BOT_TOKEN`/`SLACK_APP_TOKEN`
     - When the application starts
     - Then the `SlackProvider` should initialize using Bolt SDK and connect via Socket Mode.
 - [ ] **Scenario 2: Project isolation via threads**

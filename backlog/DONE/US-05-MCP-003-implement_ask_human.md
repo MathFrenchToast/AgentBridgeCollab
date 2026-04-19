@@ -21,7 +21,7 @@ As a Gemini Agent, I want to ask the user a question and wait for their response
     - And the tool execution MUST wait (await) for the user response
     - And return the response string back to the agent
 - [x] **Scenario 2: Configurable Timeout**
-    - Given the default timeout is 30 minutes (or `GCB_ASK_TIMEOUT`)
+    - Given the default timeout is 30 minutes (or `ABC_ASK_TIMEOUT`)
     - When the user does not respond within that timeframe
     - Then the bridge should return an error message to the agent indicating a timeout
 - [x] **Scenario 3: Empty Response**
@@ -36,7 +36,7 @@ As a Gemini Agent, I want to ask the user a question and wait for their response
     - Add `ask_human` handler in `registerDefaultTools()`.
     - In the handler:
         1. Retrieve `channelId` using `this.orchestrator.getProcessInfo(projectId).channelId`.
-        2. Set a timeout using `Promise.race` with a `setTimeout` (based on `process.env.GCB_ASK_TIMEOUT || 1800000`).
+        2. Set a timeout using `Promise.race` with a `setTimeout` (based on `process.env.ABC_ASK_TIMEOUT || 1800000`).
         3. Await `this.provider.waitForInput(channelId, prompt)`.
         4. If the provider returns a response, return `{ response: response }`.
         5. If timeout occurs, return an error object or throw an MCP Error (e.g., `-32603`).

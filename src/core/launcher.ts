@@ -18,9 +18,9 @@ export function startLauncher(argv: string[]): void {
     stdio: ['pipe', 'inherit', 'inherit'],
   });
 
-  // Bridge PM2 IPC messages (topic: 'gcb:stdin') to child process stdin
+  // Bridge PM2 IPC messages (topic: 'abc:stdin') to child process stdin
   process.on('message', (packet: any) => {
-    if (packet && packet.topic === 'gcb:stdin') {
+    if (packet && packet.topic === 'abc:stdin') {
       const payload = packet.data || packet.payload;
       if (typeof payload === 'string') {
         child.stdin.write(payload + '\n');

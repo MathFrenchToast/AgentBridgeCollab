@@ -17,7 +17,7 @@ As a Developer, I want the Discord Provider to listen for slash commands and rou
     - Given the Discord Provider is connected
     - When a user triggers a registered slash command (e.g., `/start <id> <prompt>`)
     - Then the provider should parse the interaction and invoke the callback registered via `onCommand()`.
-    - And the payload must match the `GcbCommand` interface structure.
+    - And the payload must match the `AbcCommand` interface structure.
 - [ ] **Scenario 2: Unauthorized User (Provider-Level Check)**
     - Given a whitelist of authorized users or a mechanism to forward the `userId`
     - When an unauthorized user triggers a command
@@ -29,7 +29,7 @@ None.
 # Technical Notes (Architect)
 - **Event Listener:** Use `Client.on('interactionCreate', ...)` to intercept slash commands.
 - **Check Type:** Ensure `interaction.isChatInputCommand()` before processing.
-- **Payload Mapping:** Map Discord's `CommandInteraction` to `GcbCommand`:
+- **Payload Mapping:** Map Discord's `CommandInteraction` to `AbcCommand`:
   - `type`: Map `interaction.commandName` (start, stop, status, list).
   - `projectId`: Extract from `interaction.options.getString('id')`.
   - `args`: Extract the prompt or other options as needed.

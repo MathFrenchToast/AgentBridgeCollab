@@ -1,4 +1,4 @@
-# Product Epics: Gemini Collaboration Bridge (GCB)
+# Product Epics: Agent Bridge Collaboration (ABC)
 
 ## [Epic 1] Project Initialization & Tooling
 *   **Goal:** Set up Node.js/TypeScript environment, `tsconfig.json`, and basic PM2 scripts.
@@ -16,7 +16,7 @@
 *   **Ref:** @specs/01-PRD.md#feature-collaboration-provider-interface
 
 ## [Epic 4] PM2 Orchestration Layer
-*   **Goal:** Build the `Orchestrator` to spawn and track Gemini CLI processes via PM2.
+*   **Goal:** Build the `Orchestrator` to spawn and track agent processes via PM2.
 *   **Status:** DONE
 *   **Ref:** @specs/01-PRD.md#feature-process-orchestration-pm2-integration
 

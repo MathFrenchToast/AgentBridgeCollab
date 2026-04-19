@@ -12,9 +12,9 @@ vi.mock('@/core/mcp-bridge');
 
 describe('Application Bootstrap', () => {
   const mockConfig = {
-    GCB_PROVIDER: 'discord',
-    GCB_PROVIDER_TOKEN: 'token',
-    GEMINI_API_KEY: 'key',
+    ABC_PROVIDER: 'discord',
+    ABC_PROVIDER_TOKEN: 'token',
+    AGENT_API_KEY: 'key',
     DISCORD_GUILD_ID: 'guild',
     DISCORD_CATEGORY_ID: 'category',
   };

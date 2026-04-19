@@ -17,16 +17,16 @@ As a System Administrator, I want to ensure all project names are sanitized befo
 - [x] **Scenario 1: Standard project name**
     - Given a project name "My Project 123"
     - When `startProcess` is called
-    - Then the resulting PM2 process name is "gcb-my-project-123"
+    - Then the resulting PM2 process name is "abc-my-project-123"
 - [x] **Scenario 2: Malicious project name (Command Injection)**
     - Given a project name "test; rm -rf /"
     - When `startProcess` is called
-    - Then the resulting PM2 process name is "gcb-test-rm-rf"
+    - Then the resulting PM2 process name is "abc-test-rm-rf"
     - And no shell command injection occurs
 - [x] **Scenario 3: Special characters**
     - Given a project name "Project @#$%^&*()!"
     - When `startProcess` is called
-    - Then the resulting PM2 process name is "gcb-project"
+    - Then the resulting PM2 process name is "abc-project"
 - [x] **Scenario 4: Empty or Invalid Input**
     - Given an input that results in an empty string after sanitization (e.g., "!!!")
     - When `startProcess` is called

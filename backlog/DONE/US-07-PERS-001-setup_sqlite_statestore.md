@@ -17,7 +17,7 @@ As a System, I want to initialize a persistent SQLite database so that I can sto
 - [x] **Scenario 1: Database Initialization**
     - Given the application starts
     - When the `StateStore` is initialized
-    - Then it should create a `gcb.sqlite` file (if not exists) and initialize the tables: `projects`, `spaces`, and `audit_log` as defined in the Architecture spec.
+    - Then it should create a `abc.sqlite` file (if not exists) and initialize the tables: `projects`, `spaces`, and `audit_log` as defined in the Architecture spec.
 - [x] **Scenario 2: Singleton Access**
     - Given the application is running
     - When multiple modules require the `StateStore`
@@ -29,7 +29,7 @@ As a System, I want to initialize a persistent SQLite database so that I can sto
 
 # Technical Notes (Architect)
 - **Dependencies**: Install `better-sqlite3` and `@types/better-sqlite3`.
-- **Configuration**: Add `DATABASE_PATH` to `.env` and `ConfigValidator` (Zod). Default to `./gcb.sqlite`.
+- **Configuration**: Add `DATABASE_PATH` to `.env` and `ConfigValidator` (Zod). Default to `./abc.sqlite`.
 - **Singleton Pattern**: Implement `StateStore` as a Singleton to prevent multiple connection handles to the same file.
 - **Schema Implementation**:
   - `projects`: `id` (TEXT PRIMARY KEY), `name` (TEXT), `status` (TEXT), `created_at` (DATETIME), `owner_id` (TEXT)

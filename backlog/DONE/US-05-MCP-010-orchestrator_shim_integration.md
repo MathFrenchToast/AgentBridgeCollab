@@ -23,7 +23,7 @@ As an Orchestrator, I want to use the Launcher Shim script when spawning process
     - Given a running process with a known `pm2Id`
     - When `orchestrator.sendToProcess(projectId, data)` is called
     - Then the orchestrator should use `pm2.sendDataToProcessId()` to send an IPC message
-    - And the message must have the topic `gcb:stdin` and the data payload.
+    - And the message must have the topic `abc:stdin` and the data payload.
 - [x] **Scenario 3: Validation of IPC Support**
     - Given a process spawned with the shim
     - When `sendToProcess` is called
@@ -37,7 +37,7 @@ As an Orchestrator, I want to use the Launcher Shim script when spawning process
     ```typescript
     pm2.sendDataToProcessId({
       id: pm2Id,
-      topic: 'gcb:stdin',
+      topic: 'abc:stdin',
       data: payload,
     }, (err, res) => { ... });
     ```

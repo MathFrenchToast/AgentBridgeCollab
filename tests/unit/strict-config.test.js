@@ -2,11 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { loadConfig } from '@/core/config-validator';
 describe('Strict Config Validation', () => {
     beforeEach(() => {
-        vi.stubEnv('GCB_PROVIDER', 'discord');
+        vi.stubEnv('ABC_PROVIDER', 'discord');
         // Valid Discord Token (Matches regex in Technical Notes)
-        vi.stubEnv('GCB_PROVIDER_TOKEN', 'M12345678901234567890123.abcdef.123456789012345678901234567');
+        vi.stubEnv('ABC_PROVIDER_TOKEN', 'M12345678901234567890123.abcdef.123456789012345678901234567');
         // Valid Gemini API Key (Matches regex in Technical Notes)
-        vi.stubEnv('GEMINI_API_KEY', 'AIza01234567890123456789012345678901234');
+        vi.stubEnv('AGENT_API_KEY', 'AIza01234567890123456789012345678901234');
         vi.stubEnv('DISCORD_GUILD_ID', '123456789012345678');
         vi.stubEnv('DISCORD_CATEGORY_ID', '123456789012345678');
         vi.stubEnv('AUTHORIZED_USER_IDS', '123456789012345678,123456789012345679');
@@ -14,16 +14,16 @@ describe('Strict Config Validation', () => {
     describe('Scenario 1: Valid Discord Token', () => {
         it('should successfully load a valid Discord configuration with a proper token', () => {
             const config = loadConfig();
-            expect(config.GCB_PROVIDER_TOKEN).toBe('M12345678901234567890123.abcdef.123456789012345678901234567');
+            expect(config.ABC_PROVIDER_TOKEN).toBe('M12345678901234567890123.abcdef.123456789012345678901234567');
         });
     });
     describe('Scenario 2: Invalid Token Format', () => {
-        it('should throw an error when GCB_PROVIDER_TOKEN is malformed (too short)', () => {
-            vi.stubEnv('GCB_PROVIDER_TOKEN', 'too-short');
+        it('should throw an error when ABC_PROVIDER_TOKEN is malformed (too short)', () => {
+            vi.stubEnv('ABC_PROVIDER_TOKEN', 'too-short');
             expect(() => loadConfig()).toThrow(/invalid token format/i);
         });
-        it('should throw an error when GEMINI_API_KEY is malformed', () => {
-            vi.stubEnv('GEMINI_API_KEY', 'invalid-key');
+        it('should throw an error when AGENT_API_KEY is malformed', () => {
+            vi.stubEnv('AGENT_API_KEY', 'invalid-key');
             expect(() => loadConfig()).toThrow(/invalid gemini api key/i);
         });
     });
@@ -37,19 +37,19 @@ describe('Strict Config Validation', () => {
             expect(() => loadConfig()).toThrow(/invalid user id format/i);
         });
     });
-    describe('Scenario 4: GCB_RESTART_DELAY', () => {
-        it('should default to 3000ms when GCB_RESTART_DELAY is missing', () => {
+    describe('Scenario 4: ABC_RESTART_DELAY', () => {
+        it('should default to 3000ms when ABC_RESTART_DELAY is missing', () => {
             // @ts-ignore
-            delete process.env.GCB_RESTART_DELAY;
+            delete process.env.ABC_RESTART_DELAY;
             const config = loadConfig();
-            // @ts-ignore - GCB_RESTART_DELAY might not be in the type yet
-            expect(config.GCB_RESTART_DELAY).toBe(3000);
+            // @ts-ignore - ABC_RESTART_DELAY might not be in the type yet
+            expect(config.ABC_RESTART_DELAY).toBe(3000);
         });
-        it('should coerce string to number for GCB_RESTART_DELAY', () => {
-            vi.stubEnv('GCB_RESTART_DELAY', '5000');
+        it('should coerce string to number for ABC_RESTART_DELAY', () => {
+            vi.stubEnv('ABC_RESTART_DELAY', '5000');
             const config = loadConfig();
             // @ts-ignore
-            expect(config.GCB_RESTART_DELAY).toBe(5000);
+            expect(config.ABC_RESTART_DELAY).toBe(5000);
         });
     });
 });

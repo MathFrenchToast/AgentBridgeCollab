@@ -28,7 +28,7 @@ describe('ProcessOrchestrator Shim Integration', () => {
     it('should use launcher shim and pass command as arguments', async () => {
       vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
       vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, []));
-      vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 123, name: 'gcb-test' }]));
+      vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 123, name: 'abc-test' }]));
 
       const projectName = 'test';
       const channelId = 'channel-1';
@@ -47,10 +47,10 @@ describe('ProcessOrchestrator Shim Integration', () => {
   });
 
   describe('sendToProcess()', () => {
-    it('should send IPC message with topic gcb:stdin', async () => {
+    it('should send IPC message with topic abc:stdin', async () => {
       vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
       vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, []));
-      vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 123, name: 'gcb-test' }]));
+      vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 123, name: 'abc-test' }]));
 
       await orchestrator.startProcess('test', 'channel-1', ['gemini']);
 
@@ -61,7 +61,7 @@ describe('ProcessOrchestrator Shim Integration', () => {
       expect(pm2.sendDataToProcessId).toHaveBeenCalledWith(
         {
           id: 123,
-          topic: 'gcb:stdin',
+          topic: 'abc:stdin',
           data: 'Hello agent',
         },
         expect.any(Function)
@@ -75,7 +75,7 @@ describe('ProcessOrchestrator Shim Integration', () => {
     it('should throw error if pm2.sendDataToProcessId fails', async () => {
        vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
        vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, []));
-       vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 123, name: 'gcb-test' }]));
+       vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 123, name: 'abc-test' }]));
 
        await orchestrator.startProcess('test', 'channel-1', ['gemini']);
 

@@ -24,7 +24,7 @@ As a User, I want to interact with my agent via Discord buttons and menus so tha
     - Then it should include interactive elements (e.g., "Confirm", "Cancel") if applicable to the prompt context.
 - [ ] **Scenario 3: Action handling**
     - Given a user clicks a "Stop" button
-    - When the interaction is received by GCB
+    - When the interaction is received by ABC
     - Then it should trigger the same logic as the `/stop` command.
 
 # Technical Notes (Architect)

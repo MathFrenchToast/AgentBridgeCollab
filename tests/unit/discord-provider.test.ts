@@ -55,13 +55,13 @@ describe('DiscordProvider', () => {
   beforeEach(() => {
     vi.resetAllMocks(); // Resets implementations as well
     mockConfig = {
-      GCB_PROVIDER: 'discord',
-      GCB_PROVIDER_TOKEN: 'valid-token',
-      GEMINI_API_KEY: 'mock-api-key',
+      ABC_PROVIDER: 'discord',
+      ABC_PROVIDER_TOKEN: 'valid-token',
+      AGENT_API_KEY: 'mock-api-key',
       DISCORD_GUILD_ID: 'guild-123',
       DISCORD_CATEGORY_ID: 'category-123',
       AUTHORIZED_USER_IDS: 'auth-user-123,another-user',
-      GCB_ASK_TIMEOUT: 1800000,
+      ABC_ASK_TIMEOUT: 1800000,
     };
   });
 
@@ -272,7 +272,7 @@ describe('DiscordProvider', () => {
       expect(mockAwaitMessages).toHaveBeenCalledWith({
         filter: expect.any(Function),
         max: 1,
-        time: mockConfig.GCB_ASK_TIMEOUT,
+        time: mockConfig.ABC_ASK_TIMEOUT,
         errors: ['time']
       });
 

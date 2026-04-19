@@ -23,7 +23,7 @@ As a Developer, I want the Orchestrator to track the relationship between PM2 `p
     - When `getProcessInfo(projectId)` is called
     - Then it should return `null` or throw a specific `ProcessNotFoundError`.
 - [x] Scenario 3: State Recovery
-    - Given existing PM2 processes named with the `gcb-` prefix
+    - Given existing PM2 processes named with the `abc-` prefix
     - When the orchestrator initializes
     - Then it should populate its internal tracking map with the `pm2Id`, `projectId`, and `channelId` (retrieved from process environment variables).
 
@@ -40,7 +40,7 @@ None.
     channelId: string;
   }
   ```
-- **Recovery Logic:** Use `pm2.list()` during construction/initialization. Filter processes where `name` starts with `gcb-`. Extract `channelId` from `proc.pm2_env.GCB_CHANNEL_ID`.
+- **Recovery Logic:** Use `pm2.list()` during construction/initialization. Filter processes where `name` starts with `abc-`. Extract `channelId` from `proc.pm2_env.ABC_CHANNEL_ID`.
 - **Query Method:** `getProcessInfo(projectId: string)` should first check the internal map. If missing, it could optionally perform a `pm2.describe` check before throwing `ProcessNotFoundError`.
 - **Dependency:** Ensure `pm2` programmatic API is properly typed or used safely within the orchestrator.
 

@@ -5,7 +5,7 @@ status: DONE
 type: feature
 ---
 # Description
-As a developer, I want to initialize a Node.js and TypeScript project with strict typing and a modern testing framework (Vitest) so that I can start building the GCB with a solid foundation.
+As a developer, I want to initialize a Node.js and TypeScript project with strict typing and a modern testing framework (Vitest) so that I can start building the ABC with a solid foundation.
 
 # Context Map
 > Reference @specs/context-map.md to find file paths.

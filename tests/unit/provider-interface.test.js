@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 describe('Provider Interface and Types', () => {
-    it('should define GcbCommandType as a union of string literals', () => {
+    it('should define AbcCommandType as a union of string literals', () => {
         const validCommands = ['start', 'stop', 'status', 'list'];
         expect(validCommands).toContain('start');
     });

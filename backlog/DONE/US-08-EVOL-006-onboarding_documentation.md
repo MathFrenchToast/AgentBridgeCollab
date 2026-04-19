@@ -5,7 +5,7 @@ status: DONE
 type: documentation
 ---
 # Description
-As a New Developer or Operator, I want clear, step-by-step instructions for setting up the Discord bot, Slack App, and the GCB bridge so that I can reach a "First Command" state quickly and without errors.
+As a New Developer or Operator, I want clear, step-by-step instructions for setting up the Discord bot, Slack App, and the ABC bridge so that I can reach a "First Command" state quickly and without errors.
 
 # Context Map
 > Reference @specs/context-map.md to find file paths.

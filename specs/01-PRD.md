@@ -1,4 +1,4 @@
-# Product Requirement Document (PRD): Gemini Collaboration Bridge (GCB)
+# Product Requirement Document (PRD): Agent Bridge Collaboration (ABC)
 
 ## 1. Functional Specifications
 
@@ -6,7 +6,7 @@
 *   **Rule 1:** Must implement the `ICollaborationProvider` interface: `createSpace()`, `sendMessage()`, `waitForInput()`, and `onCommand()`.
 *   **Rule 2 (Discord):** Project channels must be created under a predefined Category ID.
 *   **Rule 3 (Slack/Teams):** Project isolation should favor threads in a dedicated channel.
-*   **Rule 4:** Provider implementation must be switchable via a single environment variable (`GCB_PROVIDER`).
+*   **Rule 4:** Provider implementation must be switchable via a single environment variable (`ABC_PROVIDER`).
 
 ### Feature: MCP Tools
 *   **`notify_user(message)`:** Non-blocking tool. The bridge must route the message to the correct project channel/thread based on the process metadata.
@@ -18,7 +18,7 @@
 *   **Rule 2:** The bridge MUST track the PM2 `process_id` and its association with the chat `channel_id`.
 *   **Rule 3:** The `/stop` command must gracefully stop and delete the PM2 process.
 *   **Rule 4:** PM2 MUST be configured for automatic restarts unless the process exits with code 0 (success).
-*   **Rule 5:** GCB must tail the PM2 logs to stream agent activity back to the chat platform.
+*   **Rule 5:** ABC must tail the PM2 logs to stream agent activity back to the chat platform.
 *   **Rule 6:** The `/status` command must return the current PM2 state (online, stopping, errored) and uptime for a specific `projectId`.
 *   **Rule 7:** The `/list` command must provide a summary table of all active `projectId`s and their corresponding `channelId`.
 
@@ -37,7 +37,7 @@
 *   **Security:**
     *   **Rule 1:** Whitelist only authorized User IDs allowed to trigger commands.
     *   **Rule 2:** Sanitize all user-provided project names to prevent command injection in PM2 arguments.
-    *   **Rule 3:** Protect sensitive environment variables like `GCB_PROVIDER_TOKEN` and `GEMINI_API_KEY`.
+    **Rule 3:** Protect sensitive environment variables like `ABC_PROVIDER_TOKEN` and `AGENT_API_KEY`.
 *   **Resilience:** The bridge must attempt to reconnect to the chat platform's websocket if disconnected.
 
 ## 4. Documentation & Onboarding

@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'gcb-bridge',
+      name: 'abc-bridge',
       script: './src/index.ts',
       interpreter: 'node',
       interpreter_args: '--import tsx',

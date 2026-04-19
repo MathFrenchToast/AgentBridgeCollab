@@ -20,7 +20,7 @@ Include Success, Error, and Edge cases.
 -->
 
 - [x] **Scenario 1:** Valid Configuration
-    - Given a `.env` file with all required variables (e.g., `GCB_PROVIDER`)
+    - Given a `.env` file with all required variables (e.g., `ABC_PROVIDER`)
     - When the application configuration is initialized
     - Then `zod` successfully parses and returns a strongly-typed config object.
 - [x] **Scenario 2:** Missing Configuration
@@ -38,12 +38,12 @@ None.
 # Technical Notes (Architect)
 - **Validation Strategy:** Use `zod` to define a strict schema for all environment variables.
 - **Required Variables:**
-    - `GCB_PROVIDER`: Must be one of `discord`, `slack`, or `teams`.
-    - `GCB_PROVIDER_TOKEN`: Required string.
-    - `GEMINI_API_KEY`: Required string (for the bridge to pass to Gemini CLI if needed).
+    - `ABC_PROVIDER`: Must be one of `discord`, `slack`, or `teams`.
+    - `ABC_PROVIDER_TOKEN`: Required string.
+    - `AGENT_API_KEY`: Required string (for the bridge to pass to Gemini CLI if needed).
     - **Provider-Specific Validation:** Use Zod's `refine` or `discriminatedUnion` if possible, otherwise simple requirements for now:
-        - `DISCORD_GUILD_ID`: Required if `GCB_PROVIDER` is `discord`.
-        - `DISCORD_CATEGORY_ID`: Required if `GCB_PROVIDER` is `discord`.
+        - `DISCORD_GUILD_ID`: Required if `ABC_PROVIDER` is `discord`.
+        - `DISCORD_CATEGORY_ID`: Required if `ABC_PROVIDER` is `discord`.
 - **Implementation:**
     - Load `.env` using `dotenv` inside `src/core/Config.ts`.
     - Export an `AppConfig` type: `type AppConfig = z.infer<typeof ConfigSchema>`.

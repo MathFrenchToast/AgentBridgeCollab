@@ -29,14 +29,14 @@ describe('ProcessOrchestrator', () => {
             // Setup tracked process
             vi.mocked(pm2.connect).mockImplementation((cb) => cb(null));
             vi.mocked(pm2.list).mockImplementation((cb) => cb(null, []));
-            vi.mocked(pm2.start).mockImplementation((options, cb) => cb(null, [{ pm_id: 123, name: 'gcb-test-project' }]));
+            vi.mocked(pm2.start).mockImplementation((options, cb) => cb(null, [{ pm_id: 123, name: 'abc-test-project' }]));
             await orchestrator.startProcess('test-project', 'channel-123');
             await orchestrator.startLogTailing();
             const logSpy = vi.fn();
             orchestrator.on('LOG_EMITTED', logSpy);
             // Simulate log event
             mockBus.emit('log:out', {
-                process: { name: 'gcb-test-project' },
+                process: { name: 'abc-test-project' },
                 data: 'Hello from agent\n'
             });
             expect(logSpy).toHaveBeenCalledWith({
@@ -64,13 +64,13 @@ describe('ProcessOrchestrator', () => {
             // Setup tracked process
             vi.mocked(pm2.connect).mockImplementation((cb) => cb(null));
             vi.mocked(pm2.list).mockImplementation((cb) => cb(null, []));
-            vi.mocked(pm2.start).mockImplementation((options, cb) => cb(null, [{ pm_id: 123, name: 'gcb-test-project' }]));
+            vi.mocked(pm2.start).mockImplementation((options, cb) => cb(null, [{ pm_id: 123, name: 'abc-test-project' }]));
             await orchestrator.startProcess('test-project', 'channel-123');
             await orchestrator.startLogTailing();
             const logSpy = vi.fn();
             orchestrator.on('LOG_EMITTED', logSpy);
             mockBus.emit('log:err', {
-                process: { name: 'gcb-test-project' },
+                process: { name: 'abc-test-project' },
                 data: 'Error occurred'
             });
             expect(logSpy).toHaveBeenCalledWith({
@@ -86,15 +86,15 @@ describe('ProcessOrchestrator', () => {
             // Setup: Start a process so it's tracked
             vi.mocked(pm2.connect).mockImplementation((cb) => cb(null));
             vi.mocked(pm2.list).mockImplementation((cb) => cb(null, []));
-            vi.mocked(pm2.start).mockImplementation((options, cb) => cb(null, [{ pm_id: 123, name: 'gcb-test-project' }]));
+            vi.mocked(pm2.start).mockImplementation((options, cb) => cb(null, [{ pm_id: 123, name: 'abc-test-project' }]));
             await orchestrator.startProcess('test-project', 'channel-123');
             expect(orchestrator.getProcessInfo('test-project')).toBeDefined();
             // Mock stop and delete
             vi.mocked(pm2.stop).mockImplementation((name, cb) => cb(null));
             vi.mocked(pm2.delete).mockImplementation((name, cb) => cb(null));
             await orchestrator.stopProcess('test-project');
-            expect(pm2.stop).toHaveBeenCalledWith('gcb-test-project', expect.any(Function));
-            expect(pm2.delete).toHaveBeenCalledWith('gcb-test-project', expect.any(Function));
+            expect(pm2.stop).toHaveBeenCalledWith('abc-test-project', expect.any(Function));
+            expect(pm2.delete).toHaveBeenCalledWith('abc-test-project', expect.any(Function));
             expect(() => orchestrator.getProcessInfo('test-project')).toThrow();
         });
         it('should be idempotent and handle non-existent processes gracefully', async () => {
@@ -107,7 +107,7 @@ describe('ProcessOrchestrator', () => {
             // Setup: Start a process
             vi.mocked(pm2.connect).mockImplementation((cb) => cb(null));
             vi.mocked(pm2.list).mockImplementation((cb) => cb(null, []));
-            vi.mocked(pm2.start).mockImplementation((options, cb) => cb(null, [{ pm_id: 123, name: 'gcb-test-project' }]));
+            vi.mocked(pm2.start).mockImplementation((options, cb) => cb(null, [{ pm_id: 123, name: 'abc-test-project' }]));
             await orchestrator.startProcess('test-project', 'channel-123');
             // Mock PM2 failure
             vi.mocked(pm2.stop).mockImplementation((name, cb) => cb(new Error('process name not found')));
@@ -116,18 +116,18 @@ describe('ProcessOrchestrator', () => {
         });
     });
     describe('init()', () => {
-        it('should connect to PM2 and recover state from existing gcb- processes', async () => {
+        it('should connect to PM2 and recover state from existing abc- processes', async () => {
             vi.mocked(pm2.connect).mockImplementation((cb) => cb(null));
             const mockProcessList = [
                 {
                     pm_id: 1,
-                    name: 'gcb-project-1',
-                    pm2_env: { GCB_CHANNEL_ID: 'channel-1', GCB_PROJECT_ID: 'project-1' }
+                    name: 'abc-project-1',
+                    pm2_env: { ABC_CHANNEL_ID: 'channel-1', ABC_PROJECT_ID: 'project-1' }
                 },
                 {
                     pm_id: 2,
                     name: 'other-process',
-                    pm2_env: { GCB_CHANNEL_ID: 'channel-2', GCB_PROJECT_ID: 'project-2' }
+                    pm2_env: { ABC_CHANNEL_ID: 'channel-2', ABC_PROJECT_ID: 'project-2' }
                 }
             ];
             vi.mocked(pm2.list).mockImplementation((cb) => cb(null, mockProcessList));
@@ -148,7 +148,7 @@ describe('ProcessOrchestrator', () => {
             const projectName = 'My Awesome Project!';
             const channelId = 'channel-123';
             const expectedProjectId = 'my-awesome-project';
-            const expectedPm2Name = 'gcb-my-awesome-project';
+            const expectedPm2Name = 'abc-my-awesome-project';
             // Mock pm2.connect and list (init)
             vi.mocked(pm2.connect).mockImplementation((cb) => cb(null));
             vi.mocked(pm2.list).mockImplementation((cb) => cb(null, []));
@@ -183,7 +183,7 @@ describe('ProcessOrchestrator', () => {
         it('should return the projectId for a given channelId', async () => {
             vi.mocked(pm2.connect).mockImplementation((cb) => cb(null));
             vi.mocked(pm2.list).mockImplementation((cb) => cb(null, []));
-            vi.mocked(pm2.start).mockImplementation((options, cb) => cb(null, [{ pm_id: 1, name: 'gcb-test' }]));
+            vi.mocked(pm2.start).mockImplementation((options, cb) => cb(null, [{ pm_id: 1, name: 'abc-test' }]));
             await orchestrator.startProcess('test', 'channel-1');
             expect(orchestrator.getProjectFromChannel('channel-1')).toBe('test');
         });
@@ -233,7 +233,7 @@ describe('ProcessOrchestrator', () => {
             vi.mocked(pm2.launchBus).mockImplementation((cb) => cb(null, mockBus));
             vi.mocked(pm2.connect).mockImplementation((cb) => cb(null));
             vi.mocked(pm2.list).mockImplementation((cb) => cb(null, []));
-            vi.mocked(pm2.start).mockImplementation((options, cb) => cb(null, [{ pm_id: 123, name: 'gcb-test-project' }]));
+            vi.mocked(pm2.start).mockImplementation((options, cb) => cb(null, [{ pm_id: 123, name: 'abc-test-project' }]));
             await orchestrator.startProcess('test-project', 'channel-123');
             await orchestrator.startLogTailing();
         });
@@ -242,7 +242,7 @@ describe('ProcessOrchestrator', () => {
             orchestrator.on('PROCESS_ONLINE', onlineSpy);
             mockBus.emit('process:event', {
                 event: 'online',
-                process: { name: 'gcb-test-project' }
+                process: { name: 'abc-test-project' }
             });
             expect(onlineSpy).toHaveBeenCalledWith({
                 projectId: 'test-project',
@@ -255,7 +255,7 @@ describe('ProcessOrchestrator', () => {
             mockBus.emit('process:event', {
                 event: 'exit',
                 process: {
-                    name: 'gcb-test-project',
+                    name: 'abc-test-project',
                     status: 'stopped',
                     exit_code: 0
                 }
@@ -271,7 +271,7 @@ describe('ProcessOrchestrator', () => {
             mockBus.emit('process:event', {
                 event: 'exit',
                 process: {
-                    name: 'gcb-test-project',
+                    name: 'abc-test-project',
                     status: 'errored',
                     exit_code: 1
                 }

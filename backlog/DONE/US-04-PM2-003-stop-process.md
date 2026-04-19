@@ -15,7 +15,7 @@ As a Developer, I want the Orchestrator to gracefully stop and delete a PM2 proc
 
 # Acceptance Criteria (DoD)
 - [x] **Scenario 1: Successful Stop and Delete**
-    - Given an active PM2 process named `gcb-test-project` and tracked in the internal state
+    - Given an active PM2 process named `abc-test-project` and tracked in the internal state
     - When `stopProcess('test-project')` is called
     - Then the orchestrator should call PM2 to stop the process
     - And then it should call PM2 to delete the process
@@ -35,7 +35,7 @@ None.
 # Technical Notes (Architect)
 - **Method Signature:** `async stopProcess(projectId: string): Promise<void>`.
 - **Workflow:**
-    1.  Construct the PM2 name: \`gcb-${projectId}\`.
+    1.  Construct the PM2 name: \`abc-${projectId}\`.
     2.  Try `pm2.stop(name)`.
     3.  Try `pm2.delete(name)`.
     4.  Always remove from the internal `Map` regardless of PM2 errors (idempotency).

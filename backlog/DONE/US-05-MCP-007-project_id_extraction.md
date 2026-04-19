@@ -18,13 +18,13 @@ As a Bridge, I want to reliably identify which project is calling a tool so that
 - [ ] **Scenario 1: Extract Project ID from Environment**
     - Given the MCP Server is running for a spawned process
     - When a tool call is received
-    - Then the bridge should retrieve the `GCB_PROJECT_ID` from the environment variables of the process or the pre-registered context.
+    - Then the bridge should retrieve the `ABC_PROJECT_ID` from the environment variables of the process or the pre-registered context.
 - [ ] **Scenario 2: Validate Project Context**
     - Given an extracted `projectId`
     - When the bridge checks its internal state via `ProcessOrchestrator`
     - Then it should verify that this `projectId` is currently tracked and has an associated `channelId`.
 - [ ] **Scenario 3: Handle Missing Context**
-    - Given a tool call from a process where `GCB_PROJECT_ID` is missing or invalid
+    - Given a tool call from a process where `ABC_PROJECT_ID` is missing or invalid
     - When the bridge attempts to process the tool call
     - Then it should return a clear error to the MCP Client (agent) and log the event to `stderr`.
 
@@ -39,7 +39,7 @@ As a Bridge, I want to reliably identify which project is calling a tool so that
   ```
 - **McpBridge Helper**: Implement `private getProjectContext(projectId?: string): ProjectContext`.
   - If `projectId` is provided as an argument, use it to fetch from `orchestrator.getProcessInfo(projectId)`.
-  - If not provided, fallback to `process.env.GCB_PROJECT_ID` (enables single-project/sidecar mode).
+  - If not provided, fallback to `process.env.ABC_PROJECT_ID` (enables single-project/sidecar mode).
   - Throw a `ContextError` (custom error) if extraction fails.
 - **Validation Logic**: Use the existing `ProcessOrchestrator.getProcessInfo()` which already performs validation.
 - **Error Handling**: Ensure tool handlers catch context errors and return them as MCP standard errors (e.g., code `-32603`).

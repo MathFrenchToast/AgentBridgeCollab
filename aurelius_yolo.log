@@ -467,7 +467,7 @@ I will now check the content of US-05-MCP-004 to see if it sufficiently covers t
 
 I will now check the content of US-05-MCP-005 to see if it sufficiently covers the application bootstrap.
 
-I will check `backlog/DONE/US-04-PM2-001-spawn-process.md` to see if the `GCB_PROJECT_ID` environment variable is set when spawning a process.
+I will check `backlog/DONE/US-04-PM2-001-spawn-process.md` to see if the `ABC_PROJECT_ID` environment variable is set when spawning a process.
 
 I will check the content of US-04-PM2-002 to see if it covers the tracking and mapping of process IDs and channel IDs.
 
@@ -671,9 +671,9 @@ I will run the tests again to verify the implementation.
 
 I will read `src/providers/discord-provider.ts` again to check the timeout implementation.
 
-I will read `src/core/config-validator.ts` to see if `GCB_ASK_TIMEOUT` is already defined in the configuration.
+I will read `src/core/config-validator.ts` to see if `ABC_ASK_TIMEOUT` is already defined in the configuration.
 
-I will add `GCB_ASK_TIMEOUT` to the `BaseSchema` in `src/core/config-validator.ts`.
+I will add `ABC_ASK_TIMEOUT` to the `BaseSchema` in `src/core/config-validator.ts`.
 
 I will read `src/index.ts` to see how `McpBridge` is instantiated.
 
@@ -686,26 +686,26 @@ I will read `src/core/mcp-bridge.ts` again to make sure I have the correct conte
 
 I will update the imports and the `McpBridge` class to use `AppConfig` for the timeout.
 
-I will update the `ask_human` tool handler to use the `GCB_ASK_TIMEOUT` from the configuration.
+I will update the `ask_human` tool handler to use the `ABC_ASK_TIMEOUT` from the configuration.
 
-I will update the `DiscordProvider` to use the `GCB_ASK_TIMEOUT` from the configuration.
+I will update the `DiscordProvider` to use the `ABC_ASK_TIMEOUT` from the configuration.
 
 I will run the tests to ensure that the changes didn't break anything.
 
 I will read `tests/unit/discord-provider.test.ts` to see if it needs updates.
 
-I will update `tests/unit/discord-provider.test.ts` to include `GCB_ASK_TIMEOUT` in the `mockConfig` and use it in the tests.
+I will update `tests/unit/discord-provider.test.ts` to include `ABC_ASK_TIMEOUT` in the `mockConfig` and use it in the tests.
 
 Error executing tool replace: Error: Failed to edit, could not find the string to replace.
-I will update `tests/unit/discord-provider.test.ts` to include `GCB_ASK_TIMEOUT` in the `mockConfig`.
+I will update `tests/unit/discord-provider.test.ts` to include `ABC_ASK_TIMEOUT` in the `mockConfig`.
 
-I will update the expectation in the `waitForInput` test to use `mockConfig.GCB_ASK_TIMEOUT`.
+I will update the expectation in the `waitForInput` test to use `mockConfig.ABC_ASK_TIMEOUT`.
 
 I will run all unit tests to ensure everything is working correctly.
 
 I have implemented the `ask_human` tool with blocking logic and a configurable timeout. I have also updated the configuration validator and the Discord provider to support this new configuration. I will now update the ticket status and recommend the reviewer.
 
-I have successfully implemented the `ask_human` tool in `McpBridge`, providing a blocking interface for Gemini agents to interact with users. The implementation includes a configurable timeout via `GCB_ASK_TIMEOUT` (defaulting to 30 minutes) and is fully verified with unit tests for both `McpBridge` and `DiscordProvider`.
+I have successfully implemented the `ask_human` tool in `McpBridge`, providing a blocking interface for Gemini agents to interact with users. The implementation includes a configurable timeout via `ABC_ASK_TIMEOUT` (defaulting to 30 minutes) and is fully verified with unit tests for both `McpBridge` and `DiscordProvider`.
 
 [SUMMARY]: Implemented ask_human tool with blocking logic and configurable timeout, updated config validation and Discord provider.
 [NEXT_STEP]: aurelius:finalize-ticket US-05-MCP-003
@@ -722,7 +722,7 @@ I will run the tests to ensure that everything is passing.
 I will check the `backlog/TODO/` directory to identify the next task.
 I will move the ticket `US-05-MCP-003-implement_ask_human.md` from `backlog/WIP/` to `backlog/DONE/` and update its status to `DONE`.
 I will update the status of the ticket to `DONE` within the file `backlog/DONE/US-05-MCP-003-implement_ask_human.md`.
-The review of **US-05-MCP-003** is complete. The implementation of the `ask_human` tool in `McpBridge` is solid, featuring a robust blocking mechanism using `Promise.race` and a configurable timeout via `GCB_ASK_TIMEOUT`. The integration with the `DiscordProvider` is correctly handled, and the unit tests provide 100% coverage for the tool's logic, including edge cases like timeouts.
+The review of **US-05-MCP-003** is complete. The implementation of the `ask_human` tool in `McpBridge` is solid, featuring a robust blocking mechanism using `Promise.race` and a configurable timeout via `ABC_ASK_TIMEOUT`. The integration with the `DiscordProvider` is correctly handled, and the unit tests provide 100% coverage for the tool's logic, including edge cases like timeouts.
 
 I also noted and approved the general cleanup of the `.gemini/commands` and the removal of the obsolete `aurelius-yolo-issue.sh` script, which improves the project's overall maintainability.
 
@@ -739,7 +739,7 @@ I will move the ticket from `backlog/TODO/` to `backlog/WIP/` and update its sta
 I will update the ticket's frontmatter to reflect its new status of `IN_PROGRESS`.
 I'll begin by examining `src/core/mcp-bridge.ts` to understand how the MCP bridge is currently implemented and how to integrate the new commands.
 I'll examine the `ICollaborationProvider` interface to understand how to handle commands and create spaces.
-I'll check the `GcbCommand` type in `src/types/index.ts` to see how commands are structured.
+I'll check the `AbcCommand` type in `src/types/index.ts` to see how commands are structured.
 I'll check `src/core/process-orchestrator.ts` to see the available methods for managing processes.
 I'll examine `tests/unit/mcp-bridge.test.ts` to understand the current testing approach for the MCP bridge.
 I'll add the missing `getProjectFromChannel` and `listProcesses` methods to `ProcessOrchestrator` to support the required command bridging functionality.
@@ -994,7 +994,7 @@ I will start by locating and reading the User Story `US-05-MCP-007` in the `back
 I will now read the content of the User Story to understand the requirements for project ID extraction.
 I will now read the architectural specifications, context map, and UX design documents to ensure the technical notes I add are aligned with the system's design.
 I will now read the content of `src/core/mcp-bridge.ts` to understand its current implementation and how to best integrate the project context extraction logic.
-I will now read `src/core/process-orchestrator.ts` to see how processes are started and if the `GCB_PROJECT_ID` is correctly set and tracked.
+I will now read `src/core/process-orchestrator.ts` to see how processes are started and if the `ABC_PROJECT_ID` is correctly set and tracked.
 I will search for any existing tests related to `mcp-bridge` or `process-orchestrator` to provide better technical guidance for implementing the project context extraction.
 I will read `tests/unit/mcp-bridge.test.ts` to understand how project IDs are currently being handled in the tests.
 I will now update the User Story `US-05-MCP-007` with the detailed technical notes, implementation steps, and context map information as part of the technical grooming process.
@@ -1194,7 +1194,7 @@ I will update `backlog/TODO/US-06-SEC-003-strict_config_validation.md` to reflec
 
 I will check `src/providers/collaboration-provider.ts` to see if any updates are needed following the recent changes.
 
-I will read `src/types/index.ts` to check if `GcbCommand` requires any updates to maintain consistency.
+I will read `src/types/index.ts` to check if `AbcCommand` requires any updates to maintain consistency.
 
 I will run all tests one last time to ensure everything is functioning correctly before finishing the task.
 
@@ -1290,7 +1290,7 @@ I'm adding a test case to `tests/unit/mcp-bridge-commands.test.ts` to ensure `pr
 
 Test time.
 
-Tests passed. I've successfully implemented the `sanitizeProjectName` utility, added its tests, and integrated it into both `ProcessOrchestrator` and `McpBridge`. All acceptance criteria, including standard names, malicious injection, special characters, and empty input handling, are met and verified. `ProcessOrchestrator` correctly applies the `gcb-` prefix to the sanitized ID. I'll keep the new utility tests and the `startProcess` sanitization test in `ProcessOrchestrator` for thoroughness. I'll do a final check of `tests/unit/process-orchestrator.test.ts` to see if any cleanup is needed.
+Tests passed. I've successfully implemented the `sanitizeProjectName` utility, added its tests, and integrated it into both `ProcessOrchestrator` and `McpBridge`. All acceptance criteria, including standard names, malicious injection, special characters, and empty input handling, are met and verified. `ProcessOrchestrator` correctly applies the `abc-` prefix to the sanitized ID. I'll keep the new utility tests and the `startProcess` sanitization test in `ProcessOrchestrator` for thoroughness. I'll do a final check of `tests/unit/process-orchestrator.test.ts` to see if any cleanup is needed.
 
 `process-orchestrator.test.ts` tests `startProcess` sanitization integration, which is perfect. Task complete. I'm finalizing the ticket.
 
@@ -1349,7 +1349,7 @@ I will read `specs/03-ARCHITECTURE.md` to confirm the requirements for `RESTART_
 
 I will update `backlog/TODO/US-06-SEC-003-strict_config_validation.md` to include detailed technical notes and incorporate the `RESTART_DELAY` requirement, ensuring the technical architecture's integrity.
 
-I have completed the technical grooming for `US-06-SEC-003`. I added specific technical notes for Zod validation (regex for Discord tokens and Gemini API keys), ensured consistency between the architecture document and the implementation, and added a requirement for the missing `GCB_RESTART_DELAY` configuration.
+I have completed the technical grooming for `US-06-SEC-003`. I added specific technical notes for Zod validation (regex for Discord tokens and Gemini API keys), ensured consistency between the architecture document and the implementation, and added a requirement for the missing `ABC_RESTART_DELAY` configuration.
 
 [SUMMARY]: Performed technical grooming for US-06-SEC-003, adding detailed Zod validation notes and missing RESTART_DELAY requirement.
 [NEXT_STEP]: aurelius:dev-ticket "US-06-SEC-003"
@@ -1371,19 +1371,19 @@ I will create a new test file `tests/unit/strict-config.test.ts` to implement th
 
 I will run the tests using `npm test tests/unit/strict-config.test.ts` to confirm they fail as expected, and I will also run the existing configuration tests.
 
-I will update `src/core/config-validator.ts` by adding the specified regex validations for the Discord token and Gemini API key, and I will also implement the `GCB_RESTART_DELAY` with a default value and the validation for `AUTHORIZED_USER_IDS`.
+I will update `src/core/config-validator.ts` by adding the specified regex validations for the Discord token and Gemini API key, and I will also implement the `ABC_RESTART_DELAY` with a default value and the validation for `AUTHORIZED_USER_IDS`.
 
 I will update `tests/unit/config.test.ts` to use values that comply with the new regex validations, and then I will rerun the tests to ensure everything is functioning correctly.
 
-I will update the Slack test in `tests/unit/config.test.ts` to ensure that the `GEMINI_API_KEY` remains valid according to the new `BaseSchema` validation rules.
+I will update the Slack test in `tests/unit/config.test.ts` to ensure that the `AGENT_API_KEY` remains valid according to the new `BaseSchema` validation rules.
 
 I will rerun the tests to verify the changes and ensure that all validation rules are correctly implemented.
 
-I will adjust the test to properly simulate a missing `GCB_RESTART_DELAY` by setting it to `undefined`, ensuring that `zod`'s default value is correctly applied.
+I will adjust the test to properly simulate a missing `ABC_RESTART_DELAY` by setting it to `undefined`, ensuring that `zod`'s default value is correctly applied.
 
-I will rerun the tests to see if the `delete process.env.GCB_RESTART_DELAY` approach correctly simulates a missing environment variable and passes the default value check.
+I will rerun the tests to see if the `delete process.env.ABC_RESTART_DELAY` approach correctly simulates a missing environment variable and passes the default value check.
 
-I will check `src/types/index.ts` to see if the `AppConfig` type needs to be updated to include the new `GCB_RESTART_DELAY` and reflect any other changes.
+I will check `src/types/index.ts` to see if the `AppConfig` type needs to be updated to include the new `ABC_RESTART_DELAY` and reflect any other changes.
 
 I will verify if the `AppConfig` type, defined in `src/core/config-validator.ts`, is being exported and utilized in other parts of the application.
 
@@ -1688,7 +1688,7 @@ I will check if `US-06-SEC-003-strict_config_validation.md` already exists in th
 I will move the ticket `US-05-MCP-010-orchestrator_shim_integration.md` from `backlog/WIP` to `backlog/DONE` and update its status to `DONE`.
 I will read the content of the moved ticket to check if the acceptance criteria have been marked as completed.
 I will update the ticket to mark the acceptance criteria as completed.
-I have reviewed the implementation of US-05-MCP-010. The `ProcessOrchestrator` correctly utilizes the `Launcher Shim` for process spawning and implements the `sendToProcess` method using PM2 IPC with the `gcb:stdin` topic. Comprehensive unit tests verify the bidirectional communication capabilities and edge cases.
+I have reviewed the implementation of US-05-MCP-010. The `ProcessOrchestrator` correctly utilizes the `Launcher Shim` for process spawning and implements the `sendToProcess` method using PM2 IPC with the `abc:stdin` topic. Comprehensive unit tests verify the bidirectional communication capabilities and edge cases.
 
 [SUMMARY]: Integrated Launcher Shim in ProcessOrchestrator and implemented PM2 IPC-based stdin piping for bidirectional agent communication.
 [NEXT_STEP]: aurelius:groom-ticket "US-05-MCP-011"
@@ -1704,7 +1704,7 @@ I will now read `specs/context-map.md` to ensure the context map in the User Sto
 
 I will now update the User Story `US-05-MCP-011-bidirectional_mcp_routing.md` with refined technical notes and an updated context map.
 
-I have completed the technical grooming for `US-05-MCP-011`. I have updated the User Story with refined technical notes regarding the `IpcTransport` implementation, the `gcb:stdin` IPC topic, and the multiplexing strategy using a `Map<string, McpServer>`. The context map has been enriched with specific file roles to guide the developer.
+I have completed the technical grooming for `US-05-MCP-011`. I have updated the User Story with refined technical notes regarding the `IpcTransport` implementation, the `abc:stdin` IPC topic, and the multiplexing strategy using a `Map<string, McpServer>`. The context map has been enriched with specific file roles to guide the developer.
 
 [SUMMARY]: Performed technical grooming of US-05-MCP-011, adding detailed technical notes for bidirectional routing and updating the context map.
 [NEXT_STEP]: aurelius:dev-ticket "US-05-MCP-011"
@@ -1833,13 +1833,13 @@ I will now review the integration tests to confirm that the system's components 
 
 I will now examine the smoke test and the bidirectional MCP bridge test to understand how the system integration is being verified, and then I'll look into running the full test suite.
 
-I will now review the architecture specification to ensure it accurately reflects the current implementation, specifically checking for any naming inconsistencies like `DISCORD_TOKEN` versus `GCB_PROVIDER_TOKEN`.
+I will now review the architecture specification to ensure it accurately reflects the current implementation, specifically checking for any naming inconsistencies like `DISCORD_TOKEN` versus `ABC_PROVIDER_TOKEN`.
 
-I will now examine the configuration validator to confirm whether it uses `DISCORD_TOKEN` or `GCB_PROVIDER_TOKEN`, ensuring the architecture documentation aligns with the actual code.
+I will now examine the configuration validator to confirm whether it uses `DISCORD_TOKEN` or `ABC_PROVIDER_TOKEN`, ensuring the architecture documentation aligns with the actual code.
 
 I will now update the architecture and epics specifications to ensure consistency with the implementation, specifically correcting variable names and marking completed tasks. I'll also verify that the context map is current.
 
-I will now update the architecture documentation to consistently use `GCB_PROVIDER_TOKEN` instead of `DISCORD_TOKEN`, ensuring it aligns with the implementation.
+I will now update the architecture documentation to consistently use `ABC_PROVIDER_TOKEN` instead of `DISCORD_TOKEN`, ensuring it aligns with the implementation.
 
 I will now update the Epics documentation to reflect that all goals and sub-tasks for Epic 5 and Epic 6 have been successfully completed.
 
@@ -1848,7 +1848,7 @@ I have updated the specifications to accurately reflect the project's current st
 Error executing tool run_shell_command: Tool execution denied by policy.
 I will now review the product context to ensure it is current and aligns with the completed Epics and system integration.
 
-I have finalized the Epics and verified the system integration. I updated `specs/03-ARCHITECTURE.md` to ensure variable name consistency (`GCB_PROVIDER_TOKEN`) and marked all sub-tasks in `specs/04-EPICS.md` as DONE. The system's integration was confirmed by reviewing the entry point `src/index.ts` and the bidirectional routing tests, which demonstrate full coherence between the MCP Bridge, PM2 Orchestrator, and Collaboration Providers.
+I have finalized the Epics and verified the system integration. I updated `specs/03-ARCHITECTURE.md` to ensure variable name consistency (`ABC_PROVIDER_TOKEN`) and marked all sub-tasks in `specs/04-EPICS.md` as DONE. The system's integration was confirmed by reviewing the entry point `src/index.ts` and the bidirectional routing tests, which demonstrate full coherence between the MCP Bridge, PM2 Orchestrator, and Collaboration Providers.
 
 [SUMMARY]: Updated ARCHITECTURE.md and EPICS.md to reflect project completion and verified system integration via code and test review.
 [NEXT_STEP]: NONE
@@ -1870,7 +1870,7 @@ Error executing tool run_shell_command: Tool execution denied by policy.
 The implementation of `US-06-SEC-003` successfully meets all the Acceptance Criteria. 
 
 **Review Feedback:**
-- **Functionality**: Strict validation for `GCB_PROVIDER_TOKEN`, `GEMINI_API_KEY`, and `AUTHORIZED_USER_IDS` is correctly implemented using `zod` regex schemas and refinement. `GCB_RESTART_DELAY` correctly defaults to `3000`.
+- **Functionality**: Strict validation for `ABC_PROVIDER_TOKEN`, `AGENT_API_KEY`, and `AUTHORIZED_USER_IDS` is correctly implemented using `zod` regex schemas and refinement. `ABC_RESTART_DELAY` correctly defaults to `3000`.
 - **KISS & Over-engineering**: The implementation is straightforward and leverages `zod` capabilities perfectly without overcomplicating the structure.
 - **TDD**: Tests are added in `config.test.ts` and ensure that both valid formats pass and invalid ones correctly throw errors.
 - **Consistency**: Follows the existing `config-validator.ts` pattern and respects the specific Discord format constraints.
@@ -1959,7 +1959,7 @@ I will now install `better-sqlite3` and its corresponding type definitions as re
 
 I will read the `src/core/config-validator.ts` file to understand the current configuration validation logic before adding the `DATABASE_PATH` requirement.
 
-I will update `src/core/config-validator.ts` by adding the `DATABASE_PATH` field to the `BaseSchema`, setting its default value to `./gcb.sqlite`.
+I will update `src/core/config-validator.ts` by adding the `DATABASE_PATH` field to the `BaseSchema`, setting its default value to `./abc.sqlite`.
 
 I will now create the `tests/unit/state-store.test.ts` file and write the initial failing tests to verify the `StateStore` singleton behavior and table initialization as part of the TDD process.
 
@@ -2026,7 +2026,7 @@ Error executing tool read_file: File path '/home/mathieu/dev/discordbridge/devlo
 
 I have reviewed the implementation of `US-07-PERS-001: Setup SQLite StateStore`.
 The following items were verified:
-1.  **Functionality**: `StateStore` correctly initializes `gcb.sqlite` with the `projects`, `spaces`, and `audit_log` tables.
+1.  **Functionality**: `StateStore` correctly initializes `abc.sqlite` with the `projects`, `spaces`, and `audit_log` tables.
 2.  **Singleton Pattern**: The `getInstance()` method correctly returns a single instance of the database connection.
 3.  **Config Validation**: `DATABASE_PATH` is correctly integrated into `ConfigValidator` with a default value.
 4.  **TDD**: Comprehensive tests in `tests/unit/state-store.test.ts` cover initialization, schema integrity, and singleton behavior. All tests passed.
@@ -2143,7 +2143,7 @@ I will update the status of the user story to `DONE` and mark all acceptance cri
 I will check the git status to ensure all changes are accounted for.
 I will add all modified and new files to the git staging area.
 I will check the git status to confirm all files are staged.
-I will add `gcb.sqlite` to `.gitignore` and remove it from the git staging area.
+I will add `abc.sqlite` to `.gitignore` and remove it from the git staging area.
 I will check the recent commit history to ensure the new commit message matches the project's style.
 I have completed the review of `US-07-PERS-002`. The implementation correctly persists project-to-space mappings in the SQLite `StateStore` and integrates this with the `ProcessOrchestrator` for recovery. The acceptance criteria are fully met, and tests pass.
 
@@ -2339,8 +2339,8 @@ The `audit_log` table is correctly initialized. I'll now run the unit tests, inc
 Tests passed. I'll now check `discord-provider.test.ts` to see if the `DiscordProvider` change is tested.
 `DiscordProvider` tests pass, but I need to check `tests/unit/discord-provider.test.ts` to see if `logEvent` is verified.
 `DiscordProvider.onCommand` now calls `StateStore.getInstance().logEvent`, but the tests in `tests/unit/discord-provider.test.ts` don't seem to mock `StateStore` to verify this. I need to check the beginning of the file for `vi.mock('@/core/state-store')`.
-`StateStore` isn't mocked, so `StateStore.getInstance()` likely creates `./gcb.sqlite` during tests. I'll check `tests/unit/discord-provider.test.ts` around line 50.
-`DiscordProvider` tests lack `StateStore` mocks, causing side effects like creating `gcb.sqlite`. I'll check `tests/unit/state-store-audit.test.ts` and `tests/unit/process-orchestrator-audit.test.ts` to see if the developer missed adding them.
+`StateStore` isn't mocked, so `StateStore.getInstance()` likely creates `./abc.sqlite` during tests. I'll check `tests/unit/discord-provider.test.ts` around line 50.
+`DiscordProvider` tests lack `StateStore` mocks, causing side effects like creating `abc.sqlite`. I'll check `tests/unit/state-store-audit.test.ts` and `tests/unit/process-orchestrator-audit.test.ts` to see if the developer missed adding them.
 `StateStore` is tested. Checking `tests/unit/process-orchestrator-audit.test.ts` now.
 `ProcessOrchestrator` audit logging is tested, but `DiscordProvider` isn't verified to log events. This violates TDD principles. I'll quickly add the verification to `tests/unit/discord-provider.test.ts` before finalizing, as I want 100% compliance.
 Adding expectation to `onCommand()` test.
@@ -2435,7 +2435,7 @@ I will examine `src/core/config-validator.ts` to determine how to integrate the 
 
 I will examine `src/types/index.ts` to see how it might influence the `SlackSchema` definition and if there are any existing type definitions that should be followed.
 
-I will update `src/core/config-validator.ts` to include `SLACK_APP_TOKEN` and `SLACK_CHANNEL_ID` in the `SlackSchema`, using `GCB_PROVIDER_TOKEN` for the bot token. I'll also add regex validation for these tokens and then write a test for `config-validator.ts` to ensure it fails when the required Slack configuration is missing.
+I will update `src/core/config-validator.ts` to include `SLACK_APP_TOKEN` and `SLACK_CHANNEL_ID` in the `SlackSchema`, using `ABC_PROVIDER_TOKEN` for the bot token. I'll also add regex validation for these tokens and then write a test for `config-validator.ts` to ensure it fails when the required Slack configuration is missing.
 
 I will create `tests/unit/slack-config.test.ts` to validate the Slack configuration.
 
@@ -2463,7 +2463,7 @@ I'm testing the `onCommand` setup now.
 
 Running the `SlackProvider` tests now.
 
-`sendMessage` failed because I missed the "ℹ️ " prefix in the test. `waitForInput` timed out, possibly due to the 1s `GCB_ASK_TIMEOUT` being too short for the async test overhead, or an issue with the mocked listener and `pendingInputs`. I'll fix the `sendMessage` test, increase the timeout, and refine my use of `vi.useFakeTimers()` for the timeout test.
+`sendMessage` failed because I missed the "ℹ️ " prefix in the test. `waitForInput` timed out, possibly due to the 1s `ABC_ASK_TIMEOUT` being too short for the async test overhead, or an issue with the mocked listener and `pendingInputs`. I'll fix the `sendMessage` test, increase the timeout, and refine my use of `vi.useFakeTimers()` for the timeout test.
 
 Error executing tool replace: Error: Failed to edit, could not find the string to replace.
 I probably botched the `old_string` with an indentation error. I'll re-read the file to confirm.

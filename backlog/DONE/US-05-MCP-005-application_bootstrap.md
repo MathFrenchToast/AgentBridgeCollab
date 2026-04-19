@@ -18,7 +18,7 @@ As a Developer, I want a central entry point to bootstrap the bridge, providers,
     - Given the `npm start` command is run
     - When `src/index.ts` executes
     - Then it should validate environment variables
-    - And initialize the `CollaborationProvider` (based on `GCB_PROVIDER`)
+    - And initialize the `CollaborationProvider` (based on `ABC_PROVIDER`)
     - And initialize `ProcessOrchestrator`
     - And finally initialize `McpBridge` and start listening
 - [x] **Scenario 2: Graceful Shutdown**

@@ -5,7 +5,7 @@ status: DONE
 type: feature
 ---
 # Description
-As a Developer, I want to have a clear code definition for the `ICollaborationProvider` interface and the `GcbCommand` type so that I can implement platform-specific providers consistently.
+As a Developer, I want to have a clear code definition for the `ICollaborationProvider` interface and the `AbcCommand` type so that I can implement platform-specific providers consistently.
 
 # Context Map
 > Reference @specs/context-map.md to find file paths.
@@ -20,7 +20,7 @@ As a Developer, I want to have a clear code definition for the `ICollaborationPr
     - Then it must contain `connect()`, `createSpace()`, `sendMessage()`, `waitForInput()`, and `onCommand()` methods as specified in @specs/03-ARCHITECTURE.md.
 - **x** **Scenario 2: Shared Types Definition**
     - Given the `src/types/index.ts` file
-    - When I define the `GcbCommand` and `GcbCommandType`
+    - When I define the `AbcCommand` and `AbcCommandType`
     - Then they must match the schema: `{ type: 'start'|'stop'|'status'|'list', projectId?: string, args?: string[], userId: string, channelId: string }`.
 
 # UI element
@@ -28,9 +28,9 @@ None.
 
 # Technical Notes (Architect)
 - **Interface Location**: Define `ICollaborationProvider` in `src/providers/collaboration-provider.ts`.
-- **Type Definitions**: `GcbCommand` and `GcbCommandType` MUST be defined in `src/types/index.ts`.
+- **Type Definitions**: `AbcCommand` and `AbcCommandType` MUST be defined in `src/types/index.ts`.
 - **Exporting**: All interfaces and types must be explicitly exported.
-- **Strict Typing**: `GcbCommandType` should be a union of string literals: `'start' | 'stop' | 'status' | 'list'`.
+- **Strict Typing**: `AbcCommandType` should be a union of string literals: `'start' | 'stop' | 'status' | 'list'`.
 - **Pattern Compliance**: Ensure the interface methods return `Promise<void>` or `Promise<string>` as appropriate to allow for asynchronous platform interactions (e.g., API calls to Discord).
 - **Dependency**: No external dependencies should be introduced in these files yet (except for standard TypeScript types).
 

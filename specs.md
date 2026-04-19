@@ -2,7 +2,7 @@ This Product Requirements Document (PRD) outlines the development of a unified b
 
 ---
 
-# PRD: Gemini Collaboration Bridge (GCB)
+# PRD: Agent Bridge Collaboration (ABC)
 
 **Version:** 1.1  
 **Status:** Draft  
@@ -38,7 +38,7 @@ The goal is to create a communication and control layer for autonomous AI agents
 
 ### 4.3 Orchestration
 * **Session Management:** Use `tmux` or `screen` to run Gemini processes so they persist if the bridge process restarts.
-* **Environment Injection:** Pass `GCB_PROVIDER_NAME`, `GCB_CHANNEL_ID`, and `PROJECT_NAME` as environment variables to the Gemini sub-process.
+* **Environment Injection:** Pass `ABC_PROVIDER_NAME`, `ABC_CHANNEL_ID`, and `PROJECT_NAME` as environment variables to the Gemini sub-process.
 
 ## 5. Technical Architecture
 
@@ -93,11 +93,11 @@ uv add discord.py mcp fastmcp python-dotenv
 Create a `.env` file to store sensitive credentials and select the provider.
 
 ```env
-GCB_PROVIDER=discord  # options: discord, slack, teams
-GCB_PROVIDER_TOKEN=your_token_here
+ABC_PROVIDER=discord  # options: discord, slack, teams
+ABC_PROVIDER_TOKEN=your_token_here
 GUILD_ID=your_server_id
 CATEGORY_ID=your_project_category_id
-GEMINI_API_KEY=your_google_api_key
+AGENT_API_KEY=your_google_api_key
 ```
 
 ### Phase 3: The Bridge Implementation (`bridge.py`)

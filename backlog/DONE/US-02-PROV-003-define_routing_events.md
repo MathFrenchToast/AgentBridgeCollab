@@ -26,7 +26,7 @@ As a Developer, I want to define standard event names and data payloads for the 
 None.
 
 # Technical Notes (Architect)
-- **Event Definition**: Use a `const enum` or a union of string literals to define `GcbEventName`.
+- **Event Definition**: Use a `const enum` or a union of string literals to define `AbcEventName`.
 - **Payload Interfaces**: 
     - `LogPayload`: `{ projectId: string, stream: 'stdout' | 'stderr', content: string }`.
     - `StatusPayload`: `{ projectId: string, status: 'starting' | 'running' | 'waiting' | 'stopped' | 'error', message?: string }`.

@@ -33,9 +33,9 @@ export class ProcessOrchestrator extends EventEmitter {
           }
 
           for (const proc of list) {
-            if (proc.name?.startsWith('gcb-') && proc.pm2_env) {
-              const projectId = proc.pm2_env.GCB_PROJECT_ID || proc.name.replace('gcb-', '');
-              const channelId = proc.pm2_env.GCB_CHANNEL_ID;
+            if (proc.name?.startsWith('abc-') && proc.pm2_env) {
+              const projectId = proc.pm2_env.ABC_PROJECT_ID || proc.name.replace('abc-', '');
+              const channelId = proc.pm2_env.ABC_CHANNEL_ID;
 
               if (projectId && channelId && proc.pm_id !== undefined) {
                 this.processes.set(projectId, {
@@ -71,7 +71,7 @@ export class ProcessOrchestrator extends EventEmitter {
     for (const projectId of pm2Projects) {
       const dbProject = activeProjects.find(p => p.projectId === projectId);
       if (!dbProject) {
-        console.warn(`Orphaned PM2 process found: gcb-${projectId}. It is running but not tracked as 'running' in the persistent store.`);
+        console.warn(`Orphaned PM2 process found: abc-${projectId}. It is running but not tracked as 'running' in the persistent store.`);
       }
     }
   }
@@ -109,11 +109,11 @@ export class ProcessOrchestrator extends EventEmitter {
 
   private handleException(packet: any): void {
     const pm2Name = packet.process?.name;
-    if (!pm2Name || !pm2Name.startsWith('gcb-')) {
+    if (!pm2Name || !pm2Name.startsWith('abc-')) {
       return;
     }
 
-    const projectId = pm2Name.replace('gcb-', '');
+    const projectId = pm2Name.replace('abc-', '');
     this.store.logEvent({
       userId: 'system',
       action: 'process:exception',
@@ -123,11 +123,11 @@ export class ProcessOrchestrator extends EventEmitter {
 
   private handleProcessEvent(packet: any): void {
     const pm2Name = packet.process?.name;
-    if (!pm2Name || !pm2Name.startsWith('gcb-')) {
+    if (!pm2Name || !pm2Name.startsWith('abc-')) {
       return;
     }
 
-    const projectId = pm2Name.replace('gcb-', '');
+    const projectId = pm2Name.replace('abc-', '');
     const info = this.processes.get(projectId);
 
     if (!info) {
@@ -162,11 +162,11 @@ export class ProcessOrchestrator extends EventEmitter {
 
   private handleLog(packet: any, type: 'stdout' | 'stderr'): void {
     const pm2Name = packet.process?.name;
-    if (!pm2Name || !pm2Name.startsWith('gcb-')) {
+    if (!pm2Name || !pm2Name.startsWith('abc-')) {
       return;
     }
 
-    const projectId = pm2Name.replace('gcb-', '');
+    const projectId = pm2Name.replace('abc-', '');
     const info = this.processes.get(projectId);
 
     if (info) {
@@ -192,7 +192,7 @@ export class ProcessOrchestrator extends EventEmitter {
     ownerId: string = 'system'
   ): Promise<string> {
     const projectId = sanitizeProjectName(projectName);
-    const pm2Name = `gcb-${projectId}`;
+    const pm2Name = `abc-${projectId}`;
     
     // In development we use tsx to run the launcher.ts shim.
     // In production, this would point to the compiled launcher.js.
@@ -213,8 +213,8 @@ export class ProcessOrchestrator extends EventEmitter {
             autorestart: true,
             stop_exit_codes: [0],
             env: {
-              GCB_CHANNEL_ID: channelId,
-              GCB_PROJECT_ID: projectId,
+              ABC_CHANNEL_ID: channelId,
+              ABC_PROJECT_ID: projectId,
             },
           },
           (startErr, apps) => {
@@ -255,7 +255,7 @@ export class ProcessOrchestrator extends EventEmitter {
       pm2.sendDataToProcessId(
         {
           id: info.pm2Id,
-          topic: 'gcb:stdin',
+          topic: 'abc:stdin',
           data: data,
         },
         (err, res) => {
@@ -298,7 +298,7 @@ export class ProcessOrchestrator extends EventEmitter {
    * Gracefully stops and deletes a PM2 process.
    */
   async stopProcess(projectId: string): Promise<void> {
-    const pm2Name = `gcb-${projectId}`;
+    const pm2Name = `abc-${projectId}`;
 
     const isNotFoundError = (err: any) => 
       err && (err.message?.includes('process name not found') || err.message?.includes('process not found'));

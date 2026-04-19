@@ -11,7 +11,7 @@ export class StateStore {
     this.initializeSchema();
   }
 
-  public static getInstance(dbPath: string = './gcb.sqlite'): StateStore {
+  public static getInstance(dbPath: string = './abc.sqlite'): StateStore {
     if (!StateStore.instance) {
       StateStore.instance = new StateStore(dbPath);
     }

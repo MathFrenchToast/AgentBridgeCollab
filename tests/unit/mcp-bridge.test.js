@@ -105,7 +105,7 @@ describe('McpBridge', () => {
         // Mock waitForInput to never resolve or delay significantly
         mockProvider.waitForInput.mockImplementation(() => new Promise(() => { }));
         // Use a very short timeout for testing if we can control it via process.env
-        process.env.GCB_ASK_TIMEOUT = '100';
+        process.env.ABC_ASK_TIMEOUT = '100';
         const askHumanTool = bridge['tools'].find(t => t.name === 'ask_human');
         // We expect it to return an error object after timeout
         const result = await askHumanTool?.handler({ prompt }, projectId);

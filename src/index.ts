@@ -30,7 +30,7 @@ export const setup = async (): Promise<boolean> => {
     const bridge = new McpBridge(provider, orchestrator, config);
     bridge.listenToProviderCommands();
 
-    console.log('🚀 Gemini Collaboration Bridge is running!');
+    console.log('🚀 Agent Bridge Collaboration (ABC) is running!');
     
     // Register graceful shutdown
     setupGracefulShutdown(provider, orchestrator);

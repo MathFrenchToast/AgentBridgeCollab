@@ -9,7 +9,7 @@ import { DiscordProvider } from '@/providers/discord-provider';
  * @throws {Error} If the provider is not supported or not yet implemented.
  */
 export const createProvider = (config: AppConfig): ICollaborationProvider => {
-  switch (config.GCB_PROVIDER) {
+  switch (config.ABC_PROVIDER) {
     case 'discord':
       return new DiscordProvider(config);
     case 'slack':
@@ -18,6 +18,6 @@ export const createProvider = (config: AppConfig): ICollaborationProvider => {
       throw new Error('Provider teams is not yet implemented');
     default:
       // This case should ideally be unreachable due to Zod validation in AppConfig
-      throw new Error(`Provider ${(config as any).GCB_PROVIDER} is not supported`);
+      throw new Error(`Provider ${(config as any).ABC_PROVIDER} is not supported`);
   }
 };

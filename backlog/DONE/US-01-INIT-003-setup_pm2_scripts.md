@@ -39,7 +39,7 @@ None.
 - **Dependency Management:** PM2 includes built-in types, so `@types/pm2` is not required.
 - **Runtime Choice:** The PM2 process uses `tsx` to run `src/index.ts` directly in development via `--import tsx`. For production, it points to `dist/index.js`.
 - **Configuration:** An `ecosystem.config.cjs` has been added with `restart_delay: 3000` and `max_memory_restart: '200M'`.
-- **Naming:** The bridge process is named `gcb-bridge`. Project-specific processes spawned later should follow `gcb-[projectId]`.
+- **Naming:** The bridge process is named `abc-bridge`. Project-specific processes spawned later should follow `abc-[projectId]`.
 
 # Reviewer Feedback (Reviewer)
 <!-- If status is REWORK, details on what failed (AT or Code Quality) -->

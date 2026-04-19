@@ -1,10 +1,10 @@
-# Gemini Collaboration Bridge (GCB)
+# Agent Bridge Collaboration (ABC)
 
-Secure, observable, and remote-controllable interface for autonomous Gemini CLI agents.
+Secure, observable, and remote-controllable interface for interfacing a Coding Agent (like gemini cli, claude code, openai codex, ...) to a collaboration platform (like discrod, teams, slack, mattermost, ...)
 
 ## 🚀 Quick Start
 
-New to GCB? Follow our **[Onboarding Guide](docs/onboarding/quick-start.md)** to get started in minutes.
+New to ABC? Follow our **[Onboarding Guide](docs/onboarding/quick-start.md)** to get started in minutes.
 
 - **[Discord Setup](docs/onboarding/discord-setup.md)**
 - **[Slack Setup](docs/onboarding/slack-setup.md)**

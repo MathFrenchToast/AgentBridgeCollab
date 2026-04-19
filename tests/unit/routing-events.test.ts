@@ -1,17 +1,17 @@
 import { describe, it, expect } from 'vitest';
-import { GcbEventName, GcbEvent } from '@/types';
+import { AbcEventName, AbcEvent } from '@/types';
 
 describe('Routing Events and Payloads', () => {
-  it('should define GcbEventName with the required events', () => {
-    // This will fail to compile if GcbEventName is not defined
-    const events: GcbEventName[] = ['LOG_EMITTED', 'STATUS_CHANGED', 'INPUT_REQUESTED'];
+  it('should define AbcEventName with the required events', () => {
+    // This will fail to compile if AbcEventName is not defined
+    const events: AbcEventName[] = ['LOG_EMITTED', 'STATUS_CHANGED', 'INPUT_REQUESTED'];
     expect(events).toContain('LOG_EMITTED');
     expect(events).toContain('STATUS_CHANGED');
     expect(events).toContain('INPUT_REQUESTED');
   });
 
   it('should have a correctly structured LogPayload', () => {
-    const logEvent: GcbEvent = {
+    const logEvent: AbcEvent = {
       type: 'LOG_EMITTED',
       payload: {
         projectId: 'test-project',
@@ -24,7 +24,7 @@ describe('Routing Events and Payloads', () => {
   });
 
   it('should have a correctly structured StatusPayload', () => {
-    const statusEvent: GcbEvent = {
+    const statusEvent: AbcEvent = {
       type: 'STATUS_CHANGED',
       payload: {
         projectId: 'test-project',
@@ -37,7 +37,7 @@ describe('Routing Events and Payloads', () => {
   });
 
   it('should have a correctly structured InputRequestPayload', () => {
-    const inputEvent: GcbEvent = {
+    const inputEvent: AbcEvent = {
       type: 'INPUT_REQUESTED',
       payload: {
         projectId: 'test-project',

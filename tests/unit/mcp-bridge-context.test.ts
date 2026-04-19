@@ -36,9 +36,9 @@ describe('McpBridge Context Extraction', () => {
     expect(mockOrchestrator.getProcessInfo).toHaveBeenCalledWith('test-p');
   });
 
-  it('should extract context from process.env.GCB_PROJECT_ID when projectId is not provided', () => {
+  it('should extract context from process.env.ABC_PROJECT_ID when projectId is not provided', () => {
     const mockContext = { projectId: 'env-p', channelId: 'env-c', pm2Id: 456 };
-    process.env.GCB_PROJECT_ID = 'env-p';
+    process.env.ABC_PROJECT_ID = 'env-p';
     mockOrchestrator.getProcessInfo.mockReturnValue(mockContext);
 
     const context = (bridge as any).getProjectContext();
@@ -46,7 +46,7 @@ describe('McpBridge Context Extraction', () => {
     expect(context).toEqual(mockContext);
     expect(mockOrchestrator.getProcessInfo).toHaveBeenCalledWith('env-p');
 
-    delete process.env.GCB_PROJECT_ID;
+    delete process.env.ABC_PROJECT_ID;
   });
 
   it('should throw error when context cannot be found', () => {
@@ -57,8 +57,8 @@ describe('McpBridge Context Extraction', () => {
     expect(() => (bridge as any).getProjectContext('unknown')).toThrow('Process with ID unknown not found');
   });
 
-  it('should throw error when GCB_PROJECT_ID is missing and no projectId provided', () => {
-    delete process.env.GCB_PROJECT_ID;
+  it('should throw error when ABC_PROJECT_ID is missing and no projectId provided', () => {
+    delete process.env.ABC_PROJECT_ID;
     expect(() => (bridge as any).getProjectContext()).toThrow('Project ID missing from call context and environment');
   });
 });

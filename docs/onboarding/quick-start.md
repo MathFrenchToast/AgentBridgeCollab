@@ -1,12 +1,15 @@
 # Quick Start Guide
 
-Welcome to the Gemini Collaboration Bridge (GCB). This guide will help you get up and running with your own autonomous agent bridge in minutes.
+Welcome to the Agent Bridge Collaboration (ABC). This guide will help you get up and running with your own autonomous agent bridge in minutes.
 
 ## Prerequisites
 
 - **Node.js**: Version 20.x or higher (LTS recommended).
 - **PM2**: Process manager for Node.js (`npm install -g pm2`).
-- **Gemini API Key**: Obtain one from [Google AI Studio](https://aistudio.google.com/).
+- **Agent Authentication**: 
+  - Some agents (like Gemini CLI) may require an API key (e.g. from [Google AI Studio](https://aistudio.google.com/)).
+  - Other agents might use interactive authentication or tool-based authentication (like MCP-based authentication).
+  - Ensure you have the necessary credentials for the agent you intend to bridge.
 - **Collaboration Platform Account**: Discord or Slack (see specific setup guides).
 
 ## Installation
@@ -38,9 +41,11 @@ Welcome to the Gemini Collaboration Bridge (GCB). This guide will help you get u
 
    ```env
    # Core
-   GCB_PROVIDER=discord # or 'slack'
-   GCB_PROVIDER_TOKEN=your_token_here
-   GEMINI_API_KEY=your_gemini_api_key
+   ABC_PROVIDER=discord # or 'slack'
+   ABC_PROVIDER_TOKEN=your_token_here
+   # If your agent requires a static API key, set it here.
+   # Note: Authentication can also be interactive or managed by MCP tools.
+   AGENT_API_KEY=your_api_key_if_needed
 
    # Discord Specific (if using discord)
    DISCORD_GUILD_ID=your_guild_id
@@ -54,7 +59,7 @@ Welcome to the Gemini Collaboration Bridge (GCB). This guide will help you get u
    AUTHORIZED_USER_IDS=user_id_1,user_id_2
    ```
 
-## Launching GCB
+## Launching ABC
 
 1. **Start the bridge with PM2**:
    ```bash
@@ -80,7 +85,7 @@ If the bridge responds with an empty list (or a list of active projects), you ar
 
 - **Process won't start**: Check PM2 logs using `pm2 logs`. Common issues include missing environment variables or invalid API keys.
 - **Bot not responding**: 
-  - Ensure `GCB_PROVIDER` is set correctly.
+  - Ensure `ABC_PROVIDER` is set correctly.
   - Check that the bot has been invited to the server/channel.
   - Verify that "Message Content Intent" (Discord) or Event Subscriptions (Slack) are enabled.
 - **Permission Errors**: Verify that the bot has the required permissions (Manage Channels, Send Messages) in the platform developer portal.

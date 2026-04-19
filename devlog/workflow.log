@@ -140,10 +140,10 @@
 [2026-04-17 21:33:34] NEXT_STEP: aurelius:finalize-ticket US-05-MCP-010
 ---
 [2026-04-17 21:34:27] SUMMARY: Integrated Launcher Shim in ProcessOrchestrator and implemented PM2 IPC-based stdin piping for bidirectional agent communication.
-[2026-04-17 21:34:27] NEXT_STEP: aurelius:groom-ticket "US-05-MCP-011"  `ProcessOrchestrator` correctly utilizes the `Launcher Shim` for process spawning and implements the `sendToProcess` method using  PM2 IPC with the `gcb:stdin` topic. Comprehensive unit tests verify the bidirectional communication capabilities and edge cases.
+[2026-04-17 21:34:27] NEXT_STEP: aurelius:groom-ticket "US-05-MCP-011"  `ProcessOrchestrator` correctly utilizes the `Launcher Shim` for process spawning and implements the `sendToProcess` method using  PM2 IPC with the `abc:stdin` topic. Comprehensive unit tests verify the bidirectional communication capabilities and edge cases.
 ---
 [2026-04-17 21:35:00] SUMMARY: Performed technical grooming of US-05 -MCP-011, adding detailed technical notes for bidirectional routing and updating the context map.
-[2026-04-17 21:35:00] NEXT_STEP: aurelius:dev-ticket "US-05-MCP-011" 011`. I have updated the User Story with refined technical notes regarding the `IpcTransport` implementation, the  `gcb:stdin` IPC topic, and the multiplexing strategy using a `Map<string, McpServer>`. The  context map has been enriched with specific file roles to guide the developer.
+[2026-04-17 21:35:00] NEXT_STEP: aurelius:dev-ticket "US-05-MCP-011" 011`. I have updated the User Story with refined technical notes regarding the `IpcTransport` implementation, the  `abc:stdin` IPC topic, and the multiplexing strategy using a `Map<string, McpServer>`. The  context map has been enriched with specific file roles to guide the developer.
 ---
 [2026-04-17 21:37:13] SUMMARY: Implemented bidirectional MCP routing  with robust JSON-RPC detection and project isolation.
 [2026-04-17 21:37:13] NEXT_STEP: aurelius:finalize-ticket US-05- MCP-011
@@ -231,4 +231,10 @@
 ---
 [2026-04-19 10:45:20] SUMMARY: All changes pushed successfully after a thorough  security sweep.
 [2026-04-19 10:45:20] NEXT_STEP: NONE
+---
+[2026-04-19 11:16:13] SUMMARY: Renamed GCB to ABC globally  and updated authentication documentation to support interactive/tool-based auth.
+[2026-04-19 11:16:13] NEXT_STEP: aurelius:finalize-ticket backlog /WIP/US-08-EVOL-007-rename_to_abc_and_ update_auth_docs.md
+---
+[2026-04-19 11:16:27] SUMMARY: Prepared commit for renaming GCB to ABC and  updating auth docs.
+[2026-04-19 11:16:27] NEXT_STEP: aurelius:finalize-ticket backlog/WIP/US-08-EV OL-007-rename_to_abc_and_update_auth_docs.md
 ---

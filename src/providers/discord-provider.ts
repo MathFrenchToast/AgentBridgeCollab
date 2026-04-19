@@ -1,4 +1,4 @@
-import { ICollaborationProvider, GcbCommand } from '@/providers/collaboration-provider';
+import { ICollaborationProvider, AbcCommand } from '@/providers/collaboration-provider';
 import { AppConfig } from '@/core/config-validator';
 import { Client, GatewayIntentBits, ChannelType, EmbedBuilder, TextChannel, Message } from 'discord.js';
 import { StateStore } from '@/core/state-store';
@@ -18,8 +18,8 @@ export class DiscordProvider implements ICollaborationProvider {
         resolve();
       });
 
-      // Using type assertion for GCB_PROVIDER_TOKEN as it's guaranteed to be there for discord config
-      const token = (this.config as any).GCB_PROVIDER_TOKEN;
+      // Using type assertion for ABC_PROVIDER_TOKEN as it's guaranteed to be there for discord config
+      const token = (this.config as any).ABC_PROVIDER_TOKEN;
       this.client.login(token).catch((err) => {
         reject(err);
       });
@@ -82,7 +82,7 @@ export class DiscordProvider implements ICollaborationProvider {
     await channel.send({ embeds: [embed] });
 
     const filter = (m: Message) => m.author.id !== this.client.user?.id;
-    const timeoutMs = this.config.GCB_ASK_TIMEOUT;
+    const timeoutMs = this.config.ABC_ASK_TIMEOUT;
 
     try {
       const collected = await channel.awaitMessages({
@@ -104,7 +104,7 @@ export class DiscordProvider implements ICollaborationProvider {
     }
   }
 
-  onCommand(callback: (command: GcbCommand) => Promise<void>): void {
+  onCommand(callback: (command: AbcCommand) => Promise<void>): void {
     this.client.on('interactionCreate', async (interaction) => {
       if (!interaction.isChatInputCommand()) return;
 
@@ -119,10 +119,10 @@ export class DiscordProvider implements ICollaborationProvider {
 
       await interaction.deferReply();
 
-      const commandType = interaction.commandName as GcbCommand['type'];
+      const commandType = interaction.commandName as AbcCommand['type'];
       const projectId = interaction.options.getString('id') || undefined;
 
-      const gcbCommand: GcbCommand = {
+      const abcCommand: AbcCommand = {
         type: commandType,
         projectId,
         args: [], // Add parsing for other arguments if needed
@@ -137,7 +137,7 @@ export class DiscordProvider implements ICollaborationProvider {
         projectId: projectId
       });
 
-      await callback(gcbCommand);
+      await callback(abcCommand);
     });
   }
 

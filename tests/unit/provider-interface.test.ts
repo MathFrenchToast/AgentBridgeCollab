@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import type { ICollaborationProvider, GcbCommand } from '@/providers/collaboration-provider';
-import type { GcbCommandType } from '@/types';
+import type { ICollaborationProvider, AbcCommand } from '@/providers/collaboration-provider';
+import type { AbcCommandType } from '@/types';
 
 describe('Provider Interface and Types', () => {
-  it('should define GcbCommandType as a union of string literals', () => {
-    const validCommands: GcbCommandType[] = ['start', 'stop', 'status', 'list'];
+  it('should define AbcCommandType as a union of string literals', () => {
+    const validCommands: AbcCommandType[] = ['start', 'stop', 'status', 'list'];
     expect(validCommands).toContain('start');
   });
 
@@ -18,7 +18,7 @@ describe('Provider Interface and Types', () => {
       async waitForInput(spaceId: string, prompt: string): Promise<string> {
         return 'mock-input';
       }
-      onCommand(callback: (command: GcbCommand) => Promise<void>): void {}
+      onCommand(callback: (command: AbcCommand) => Promise<void>): void {}
     }
 
     const provider = new MockProvider();

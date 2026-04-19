@@ -14,7 +14,7 @@ As a System, I want the Process Orchestrator to synchronize its internal state w
 # Acceptance Criteria (DoD)
 
 - [x] **Scenario 1: Bootstrap Sync**
-    - Given the GCB application is starting
+    - Given the ABC application is starting
     - When the `ProcessOrchestrator` initializes
     - Then it should query the `StateStore` for all projects marked as 'active' and sync them with the current PM2 process list.
 - [x] **Scenario 2: Handle Orphaned PM2 Processes**

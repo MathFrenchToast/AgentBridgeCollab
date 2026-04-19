@@ -11,9 +11,13 @@ const mockApp = {
   client: {
     chat: {
       postMessage: vi.fn().mockResolvedValue({ ok: true, ts: '12345.678' }),
+      postEphemeral: vi.fn().mockResolvedValue({ ok: true }),
     },
     conversations: {
         replies: vi.fn().mockResolvedValue({ ok: true, messages: [] })
+    },
+    auth: {
+      test: vi.fn().mockResolvedValue({ ok: true, user_id: 'BOT_ID', user: 'bot-user' })
     }
   },
 };
@@ -30,13 +34,13 @@ vi.mock('@slack/bolt', () => {
 describe('SlackProvider', () => {
   let provider: SlackProvider;
   const config: AppConfig = {
-    GCB_PROVIDER: 'slack',
-    GCB_PROVIDER_TOKEN: 'xoxb-bot-token',
+    ABC_PROVIDER: 'slack',
+    ABC_PROVIDER_TOKEN: 'xoxb-bot-token',
     SLACK_APP_TOKEN: 'xapp-app-token',
     SLACK_CHANNEL_ID: 'C12345',
-    GEMINI_API_KEY: 'AIza01234567890123456789012345678901234',
-    GCB_ASK_TIMEOUT: 1000,
-    GCB_RESTART_DELAY: 3000,
+    AGENT_API_KEY: 'AIza01234567890123456789012345678901234',
+    ABC_ASK_TIMEOUT: 100, // Short timeout for tests
+    ABC_RESTART_DELAY: 3000,
     DATABASE_PATH: ':memory:',
   } as any;
 
@@ -46,10 +50,6 @@ describe('SlackProvider', () => {
   });
 
   it('should connect to Slack and retrieve botUserId', async () => {
-    mockApp.client.auth = {
-      test: vi.fn().mockResolvedValue({ ok: true, user_id: 'BOT_ID', user: 'bot-user' })
-    } as any;
-    
     await provider.connect();
     expect(mockApp.start).toHaveBeenCalled();
     expect(mockApp.client.auth.test).toHaveBeenCalled();
@@ -74,7 +74,7 @@ describe('SlackProvider', () => {
     await provider.sendMessage('12345.678', 'Hello world', 'info');
     expect(mockApp.client.chat.postMessage).toHaveBeenCalledWith({
       channel: 'C12345',
-      text: 'Hello world',
+      text: 'ℹ️ Hello world',
       thread_ts: '12345.678',
     });
   });
@@ -88,17 +88,19 @@ describe('SlackProvider', () => {
 
     const promise = provider.waitForInput('12345.678', 'What is your name?');
     
-    // Simulate user message
-    await messageListener({
-        message: {
-            thread_ts: '12345.678',
-            text: 'My name is Gemini',
-            user: 'USER_ID'
-        }
-    });
+    // Simulate user message with a small delay to allow promise to be registered
+    setTimeout(() => {
+        messageListener({
+            message: {
+                thread_ts: '12345.678',
+                text: 'My name is Agent',
+                user: 'USER_ID'
+            }
+        });
+    }, 10);
 
     const result = await promise;
-    expect(result).toBe('My name is Gemini');
+    expect(result).toBe('My name is Agent');
   });
 
   it('should register slash commands', () => {
@@ -112,12 +114,8 @@ describe('SlackProvider', () => {
   });
 
   it('should timeout if no input is received', async () => {
-    vi.useFakeTimers();
     const promise = provider.waitForInput('12345.678', 'What is your name?');
-    
-    vi.advanceTimersByTime(2000000); // More than GCB_ASK_TIMEOUT
-    
+    // Wait for the short timeout (100ms)
     await expect(promise).rejects.toThrow('Timeout waiting for user input');
-    vi.useRealTimers();
   });
 });

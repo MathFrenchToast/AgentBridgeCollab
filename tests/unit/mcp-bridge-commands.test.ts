@@ -2,13 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { McpBridge } from '@/core/mcp-bridge';
 import { ICollaborationProvider } from '@/providers/collaboration-provider';
 import { ProcessOrchestrator } from '@/core/process-orchestrator';
-import { GcbCommand } from '@/types';
+import { AbcCommand } from '@/types';
 
 describe('McpBridge Commands', () => {
   let bridge: McpBridge;
   let mockProvider: any;
   let mockOrchestrator: any;
-  let commandCallback: (command: GcbCommand) => Promise<void>;
+  let commandCallback: (command: AbcCommand) => Promise<void>;
 
   beforeEach(() => {
     mockProvider = {
@@ -31,7 +31,7 @@ describe('McpBridge Commands', () => {
   });
 
   it('should handle /start command', async () => {
-    const command: GcbCommand = {
+    const command: AbcCommand = {
       type: 'start',
       projectId: 'my-project',
       userId: 'user-1',
@@ -47,7 +47,7 @@ describe('McpBridge Commands', () => {
   });
 
   it('should sanitize projectId in /start command', async () => {
-    const command: GcbCommand = {
+    const command: AbcCommand = {
       type: 'start',
       projectId: 'My Project! 123',
       userId: 'user-1',
@@ -62,7 +62,7 @@ describe('McpBridge Commands', () => {
   });
 
   it('should handle /stop command in a project channel', async () => {
-    const command: GcbCommand = {
+    const command: AbcCommand = {
       type: 'stop',
       userId: 'user-1',
       channelId: 'channel-123',
@@ -78,7 +78,7 @@ describe('McpBridge Commands', () => {
   });
 
   it('should handle /status command', async () => {
-    const command: GcbCommand = {
+    const command: AbcCommand = {
       type: 'status',
       userId: 'user-1',
       channelId: 'channel-123',
@@ -98,7 +98,7 @@ describe('McpBridge Commands', () => {
   });
 
   it('should handle /list command', async () => {
-    const command: GcbCommand = {
+    const command: AbcCommand = {
       type: 'list',
       userId: 'user-1',
       channelId: 'channel-123',
@@ -118,7 +118,7 @@ describe('McpBridge Commands', () => {
   });
 
   it('should notify user if /start missing projectId', async () => {
-    const command: GcbCommand = {
+    const command: AbcCommand = {
       type: 'start',
       userId: 'user-1',
       channelId: 'general',
@@ -130,7 +130,7 @@ describe('McpBridge Commands', () => {
   });
 
   it('should notify user if command fails', async () => {
-    const command: GcbCommand = {
+    const command: AbcCommand = {
       type: 'stop',
       userId: 'user-1',
       channelId: 'channel-123',

@@ -1,4 +1,4 @@
-import { ICollaborationProvider, GcbCommand } from '@/providers/collaboration-provider';
+import { ICollaborationProvider, AbcCommand } from '@/providers/collaboration-provider';
 import { AppConfig } from '@/core/config-validator';
 import { StateStore } from '@/core/state-store';
 import pkg from '@slack/bolt';
@@ -11,7 +11,7 @@ export class SlackProvider implements ICollaborationProvider {
 
   constructor(private config: AppConfig) {
     this.app = new App({
-      token: (this.config as any).GCB_PROVIDER_TOKEN,
+      token: (this.config as any).ABC_PROVIDER_TOKEN,
       signingSecret: 'NOT_USED_WITH_SOCKET_MODE', // Required but not used for socket mode
       socketMode: true,
       appToken: (this.config as any).SLACK_APP_TOKEN,
@@ -76,7 +76,7 @@ export class SlackProvider implements ICollaborationProvider {
       const timeout = setTimeout(() => {
         this.pendingInputs.delete(spaceId);
         reject(new Error('Timeout waiting for user input'));
-      }, this.config.GCB_ASK_TIMEOUT);
+      }, this.config.ABC_ASK_TIMEOUT);
 
       this.pendingInputs.set(spaceId, (input: string) => {
         clearTimeout(timeout);
@@ -85,8 +85,8 @@ export class SlackProvider implements ICollaborationProvider {
     });
   }
 
-  onCommand(callback: (command: GcbCommand) => Promise<void>): void {
-    const commands: GcbCommand['type'][] = ['start', 'stop', 'status', 'list'];
+  onCommand(callback: (command: AbcCommand) => Promise<void>): void {
+    const commands: AbcCommand['type'][] = ['start', 'stop', 'status', 'list'];
 
     for (const cmdType of commands) {
       this.app.command(`/${cmdType}`, async ({ command, ack }: any) => {
@@ -107,7 +107,7 @@ export class SlackProvider implements ICollaborationProvider {
         // Parse args: everything after projectId
         const args = command.text.split(' ').slice(1);
 
-        const gcbCommand: GcbCommand = {
+        const abcCommand: AbcCommand = {
           type: cmdType,
           projectId,
           args,
@@ -122,7 +122,7 @@ export class SlackProvider implements ICollaborationProvider {
           projectId: projectId
         });
 
-        await callback(gcbCommand);
+        await callback(abcCommand);
       });
     }
   }

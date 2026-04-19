@@ -1,14 +1,14 @@
-export type GcbCommandType = 'start' | 'stop' | 'status' | 'list';
+export type AbcCommandType = 'start' | 'stop' | 'status' | 'list';
 
-export interface GcbCommand {
-  type: GcbCommandType;
+export interface AbcCommand {
+  type: AbcCommandType;
   projectId?: string;
   args?: string[];
   userId: string;
   channelId: string;
 }
 
-export type GcbEventName = 'LOG_EMITTED' | 'STATUS_CHANGED' | 'INPUT_REQUESTED';
+export type AbcEventName = 'LOG_EMITTED' | 'STATUS_CHANGED' | 'INPUT_REQUESTED';
 
 export interface LogPayload {
   projectId: string;
@@ -40,7 +40,7 @@ export interface ProjectContext {
   pm2Id: number;
 }
 
-export type GcbEvent =
+export type AbcEvent =
   | { type: 'LOG_EMITTED'; payload: LogPayload }
   | { type: 'STATUS_CHANGED'; payload: StatusPayload }
   | { type: 'INPUT_REQUESTED'; payload: InputRequestPayload };

@@ -1,19 +1,19 @@
 # Slack Setup Guide
 
-This guide details how to create and configure a Slack App for the Gemini Collaboration Bridge using Socket Mode.
+This guide details how to create and configure a Slack App for the Agent Bridge Collaboration using Socket Mode.
 
 ## Step 1: Create App
 
 1. Go to [Slack App Management](https://api.slack.com/apps).
 2. Click **Create New App** -> **From scratch**.
-3. Name it (e.g., "GCB Bridge") and select your workspace.
+3. Name it (e.g., "ABC Bridge") and select your workspace.
 
 ## Step 2: Socket Mode & App Token
 
 1. Go to **Settings -> Socket Mode**.
 2. Toggle **Enable Socket Mode**.
 3. You will be prompted to create an **App-level Token**.
-   - Name it (e.g., `GCB_SOCKET_TOKEN`).
+   - Name it (e.g., `ABC_SOCKET_TOKEN`).
    - Add the `connections:write` scope.
 4. Copy the token (starts with `xapp-`). This is your `SLACK_APP_TOKEN`.
 
@@ -26,7 +26,7 @@ This guide details how to create and configure a Slack App for the Gemini Collab
    - `channels:history` (to read responses)
    - `channels:read` (to verify channel membership)
 3. Scroll up and click **Install to Workspace**.
-4. Copy the **Bot User OAuth Token** (starts with `xoxb-`). This is your `GCB_PROVIDER_TOKEN`.
+4. Copy the **Bot User OAuth Token** (starts with `xoxb-`). This is your `ABC_PROVIDER_TOKEN`.
 
 ## Step 4: Event Subscriptions
 
