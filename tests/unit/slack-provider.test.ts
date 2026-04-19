@@ -34,7 +34,7 @@ describe('SlackProvider', () => {
     GCB_PROVIDER_TOKEN: 'xoxb-bot-token',
     SLACK_APP_TOKEN: 'xapp-app-token',
     SLACK_CHANNEL_ID: 'C12345',
-    GEMINI_API_KEY: 'AIzaSy-api-key',
+    GEMINI_API_KEY: 'AIza01234567890123456789012345678901234',
     GCB_ASK_TIMEOUT: 1000,
     GCB_RESTART_DELAY: 3000,
     DATABASE_PATH: ':memory:',
