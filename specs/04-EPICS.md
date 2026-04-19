@@ -59,5 +59,6 @@
     *   **Enhanced Discord UX:** Integrate Discord Buttons and Select Menus for common actions (e.g., stop, restart, HITL acknowledgment) to improve interactivity.
     *   **Dynamic Authorization Management:** Add administrative commands (e.g., `/whitelist add/remove`) to manage authorized users at runtime, persisting changes in `StateStore`.
     *   **Agent Health Monitoring:** Implement heartbeat checks and auto-detection of hung processes in the `ProcessOrchestrator`.
+    *   **Onboarding & Documentation:** Create comprehensive guides for Discord server setup, bot installation, and first-step procedures as defined in PRD.
 *   **Status:** IN_PROGRESS
 *   **Ref:** @specs/01-PRD.md#feature-advanced-orchestration-security

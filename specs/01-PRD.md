@@ -39,3 +39,17 @@
     *   **Rule 2:** Sanitize all user-provided project names to prevent command injection in PM2 arguments.
     *   **Rule 3:** Protect sensitive environment variables like `GCB_PROVIDER_TOKEN` and `GEMINI_API_KEY`.
 *   **Resilience:** The bridge must attempt to reconnect to the chat platform's websocket if disconnected.
+
+## 4. Documentation & Onboarding
+
+### Feature: Onboarding & Installation Guides
+*   **Rule 1 (Provider Setup):** Each supported platform (Discord, Slack) MUST have a dedicated setup guide covering:
+    *   Platform application/bot creation (e.g., Discord Developer Portal steps).
+    *   Required permissions and scopes (e.g., `Manage Channels`, `Send Messages`).
+    *   Integration setup (e.g., inviting the bot to a server).
+*   **Rule 2 (Quick Start):** A global `README.md` or dedicated `INSTALL.md` MUST provide a "First Steps" guide covering:
+    *   Environment variable configuration (`.env.example`).
+    *   Installation of dependencies and build process.
+    *   Launching the bridge using PM2.
+    *   The first command to run to verify the setup (e.g., `/list`).
+*   **Rule 3 (Troubleshooting):** Documentation MUST include a section on common issues (e.g., PM2 logs access, permission errors).

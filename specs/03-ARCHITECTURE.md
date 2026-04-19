@@ -157,3 +157,12 @@ The `ProviderFactory` supports `slack` as a valid provider, utilizing the Slack 
 *   **Unified Test Suite:** All tests are strictly TypeScript (`.ts`) using `vitest`. Redundant `.js` tests are prohibited.
 *   **Mocking:** Unit tests for providers MUST use robust mocking of platform SDKs (discord.js, bolt).
 
+## 8. Documentation Structure
+To support onboarding and multi-platform scaling, documentation is organized as follows:
+*   **`README.md`**: Project overview, core value proposition, and quick links.
+*   **`docs/onboarding/`**:
+    *   `quick-start.md`: Initial environment setup and first execution.
+    *   `discord-setup.md`: Step-by-step guide for Discord server and bot configuration.
+    *   `slack-setup.md`: Step-by-step guide for Slack App and Socket Mode configuration.
+*   **`specs/`**: Technical specifications, architectural decisions, and product roadmap.
+
