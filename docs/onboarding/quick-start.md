@@ -43,10 +43,12 @@ Welcome to the Agent Bridge Collaboration (ABC). This guide will help you get up
    # Core
    ABC_PROVIDER=discord # or 'slack'
    ABC_PROVIDER_TOKEN=your_token_here
-   # If your agent requires a static API key, set it here.
-   # Note: Authentication can also be interactive or managed by MCP tools.
-   AGENT_API_KEY=your_api_key_if_needed
 
+   # Agent Authentication
+   # Leave AGENT_API_KEY blank if your agent uses account-based auth (e.g., Google Pro)
+   # or interactive login.
+   AGENT_API_KEY=
+   ```
    # Discord Specific (if using discord)
    DISCORD_GUILD_ID=your_guild_id
    DISCORD_CATEGORY_ID=your_category_id

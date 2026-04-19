@@ -29,13 +29,16 @@ This guide details how to create and configure a Discord Bot for the Agent Bridg
 
 ## Step 4: Server Configuration
 
+> ⚠️ **CRITICAL:** To see the "Copy ID" options, you **MUST** enable **Developer Mode** in your Discord client:
+> 1. Go to **User Settings** (the gear icon next to your name).
+> 2. Go to **Advanced** (under App Settings).
+> 3. Toggle **Developer Mode** to **ON**.
+
 To fill your `.env`, you need these IDs:
 
-1. **Guild ID**: Right-click your server name and select "Copy Server ID".
-2. **Category ID**: Create a Category where agent channels will live. Right-click it and select "Copy Category ID".
-3. **User ID**: Right-click your own name and select "Copy User ID" to add it to `AUTHORIZED_USER_IDS`.
-
-*Note: You must have Discord "Developer Mode" enabled in User Settings -> Advanced to see "Copy ID" options.*
+1. **Guild ID**: Right-click your server name in the sidebar and select **Copy Server ID**.
+2. **Category ID**: Create a Category where agent channels will live. Right-click the category name and select **Copy Category ID**.
+3. **User ID**: Right-click your own name in the member list and select **Copy User ID** to add it to `AUTHORIZED_USER_IDS`.
 
 ---
 
