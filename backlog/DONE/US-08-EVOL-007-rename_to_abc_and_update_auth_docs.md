@@ -1,7 +1,7 @@
 ---
 id: US-08-EVOL-007
 title: Rename to ABC and Update Auth Documentation
-status: IN_PROGRESS
+status: DONE
 ---
 
 # User Story: Rename GCB to ABC and Update Auth Documentation
