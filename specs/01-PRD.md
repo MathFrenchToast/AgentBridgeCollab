@@ -22,6 +22,11 @@
 *   **Rule 6:** The `/status` command must return the current PM2 state (online, stopping, errored) and uptime for a specific `projectId`.
 *   **Rule 7:** The `/list` command must provide a summary table of all active `projectId`s and their corresponding `channelId`.
 
+### Feature: Advanced Orchestration & Security
+*   **Rule 1 (Dynamic Whitelist):** Authorized users must be manageable at runtime via commands (e.g., `/whitelist add @user`). Changes MUST be persisted in the `StateStore`.
+*   **Rule 2 (Health Monitoring):** The bridge MUST implement a heartbeat mechanism to detect if an agent process is unresponsive despite being "online" in PM2.
+*   **Rule 3 (Rich Interactivity):** Providers SHOULD use platform-native interactive elements (Buttons, Menus) for frequent actions to reduce command typing.
+
 ## 2. Data Dictionary
 *   **`projectId`:** A unique, sanitized string used as the PM2 process name and channel label.
 *   **`channelId` / `threadTs`:** Platform-specific identifier for the communication space.
@@ -34,3 +39,17 @@
     *   **Rule 2:** Sanitize all user-provided project names to prevent command injection in PM2 arguments.
     *   **Rule 3:** Protect sensitive environment variables like `GCB_PROVIDER_TOKEN` and `GEMINI_API_KEY`.
 *   **Resilience:** The bridge must attempt to reconnect to the chat platform's websocket if disconnected.
+
+## 4. Documentation & Onboarding
+
+### Feature: Onboarding & Installation Guides
+*   **Rule 1 (Provider Setup):** Each supported platform (Discord, Slack) MUST have a dedicated setup guide covering:
+    *   Platform application/bot creation (e.g., Discord Developer Portal steps).
+    *   Required permissions and scopes (e.g., `Manage Channels`, `Send Messages`).
+    *   Integration setup (e.g., inviting the bot to a server).
+*   **Rule 2 (Quick Start):** A global `README.md` or dedicated `INSTALL.md` MUST provide a "First Steps" guide covering:
+    *   Environment variable configuration (`.env.example`).
+    *   Installation of dependencies and build process.
+    *   Launching the bridge using PM2.
+    *   The first command to run to verify the setup (e.g., `/list`).
+*   **Rule 3 (Troubleshooting):** Documentation MUST include a section on common issues (e.g., PM2 logs access, permission errors).

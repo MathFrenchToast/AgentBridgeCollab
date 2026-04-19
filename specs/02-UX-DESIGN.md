@@ -23,7 +23,12 @@ When a project starts, GCB creates a dedicated channel.
 *   **HITL Request:** Yellow sidebar Embed with a "WAITING FOR INPUT" header.
 *   **Success/Completion:** Green sidebar Embed.
 
-## 5. User Flows
+## 5. Security & Authorization
+To prevent unauthorized use, commands are restricted to a whitelist of User IDs defined in the configuration.
+*   **Unauthorized Attempt:** If a non-whitelisted user attempts to run a slash command, the bot pings them with an **Ephemeral Message** (visible only to them).
+*   **Message Content:** "You are not authorized to use this command."
+
+## 6. User Flows
 1.  **Kickoff:** Developer enters `/start`.
 2.  **Observation:** Developer watches the new channel for live updates.
 3.  **Intervention:** Agent asks a question -> Yellow Embed appears -> Developer replies directly in the channel -> Agent resumes.

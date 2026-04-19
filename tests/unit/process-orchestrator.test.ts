@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ProcessOrchestrator } from '@/core/process-orchestrator';
 import pm2 from 'pm2';
 import { EventEmitter } from 'events';
+import { StateStore } from '@/core/state-store';
 
 // Mock pm2
 vi.mock('pm2', () => {
@@ -14,16 +15,36 @@ vi.mock('pm2', () => {
       stop: vi.fn(),
       delete: vi.fn(),
       launchBus: vi.fn(),
+      sendDataToProcessId: vi.fn(),
     }
+  };
+});
+
+// Mock StateStore
+vi.mock('@/core/state-store', () => {
+  return {
+    StateStore: {
+      getInstance: vi.fn().mockReturnValue({
+        saveMapping: vi.fn(),
+        getMapping: vi.fn(),
+        getProjectByChannel: vi.fn(),
+        deleteMapping: vi.fn(),
+        listActiveProjects: vi.fn(),
+        logEvent: vi.fn(),
+        getAuditLogs: vi.fn(),
+      }),
+    },
   };
 });
 
 describe('ProcessOrchestrator', () => {
   let orchestrator: ProcessOrchestrator;
+  let mockStore: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    orchestrator = new ProcessOrchestrator();
+    mockStore = StateStore.getInstance();
+    orchestrator = new ProcessOrchestrator(mockStore);
   });
 
   describe('log tailing', () => {
@@ -181,11 +202,12 @@ describe('ProcessOrchestrator', () => {
   });
 
   describe('startProcess()', () => {
-    it('should sanitize the project name, connect to PM2, and start the process', async () => {
+    it('should sanitize the project name, connect to PM2, and start the process with shim', async () => {
       const projectName = 'My Awesome Project!';
       const channelId = 'channel-123';
       const expectedProjectId = 'my-awesome-project';
       const expectedPm2Name = 'gcb-my-awesome-project';
+      const agentArgs = ['gemini', 'run'];
 
       // Mock pm2.connect and list (init)
       vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
@@ -194,9 +216,18 @@ describe('ProcessOrchestrator', () => {
       // Mock pm2.start to call the callback with no error and some mock apps
       vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 123, name: expectedPm2Name }]));
 
-      const projectId = await orchestrator.startProcess(projectName, channelId);
+      const projectId = await orchestrator.startProcess(projectName, channelId, agentArgs);
 
       expect(projectId).toBe(expectedProjectId);
+      expect(pm2.start).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: expectedPm2Name,
+          script: expect.stringContaining('launcher.ts'),
+          args: agentArgs,
+          interpreter: 'tsx',
+        }),
+        expect.any(Function)
+      );
       
       const info = orchestrator.getProcessInfo(expectedProjectId);
       expect(info).toEqual({
@@ -221,9 +252,84 @@ describe('ProcessOrchestrator', () => {
     });
   });
 
+  describe('sendToProcess()', () => {
+    it('should send IPC message with topic gcb:stdin', async () => {
+      vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
+      vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, []));
+      vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 123, name: 'gcb-test' }]));
+
+      await orchestrator.startProcess('test', 'channel-1');
+
+      vi.mocked(pm2.sendDataToProcessId).mockImplementation((options: any, cb: any) => cb(null, { success: true }));
+
+      await orchestrator.sendToProcess('test', 'Hello agent');
+
+      expect(pm2.sendDataToProcessId).toHaveBeenCalledWith(
+        {
+          id: 123,
+          topic: 'gcb:stdin',
+          data: 'Hello agent',
+        },
+        expect.any(Function)
+      );
+    });
+
+    it('should throw error if process is not found', async () => {
+      await expect(orchestrator.sendToProcess('unknown', 'data')).rejects.toThrow('Process with ID unknown not found');
+    });
+
+    it('should throw error if pm2.sendDataToProcessId fails', async () => {
+       vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
+       vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, []));
+       vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 123, name: 'gcb-test' }]));
+
+       await orchestrator.startProcess('test', 'channel-1');
+
+       vi.mocked(pm2.sendDataToProcessId).mockImplementation((options: any, cb: any) => cb(new Error('IPC Failed')));
+
+       await expect(orchestrator.sendToProcess('test', 'data')).rejects.toThrow('IPC Failed');
+    });
+  });
+
   describe('getProcessInfo()', () => {
     it('should throw Error when process is not found', () => {
       expect(() => orchestrator.getProcessInfo('unknown')).toThrow('Process with ID unknown not found');
+    });
+  });
+
+  describe('getProjectFromChannel()', () => {
+    it('should return the projectId for a given channelId', async () => {
+      vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
+      vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, []));
+      vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 1, name: 'gcb-test' }]));
+
+      await orchestrator.startProcess('test', 'channel-1');
+      
+      expect(orchestrator.getProjectFromChannel('channel-1')).toBe('test');
+    });
+
+    it('should return undefined if channelId is not found', () => {
+      expect(orchestrator.getProjectFromChannel('unknown')).toBeUndefined();
+    });
+  });
+
+  describe('listProcesses()', () => {
+    it('should return a list of all managed processes', async () => {
+      vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
+      vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, []));
+      vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 1, name: 'mock' }]));
+
+      await orchestrator.startProcess('p1', 'c1');
+      await orchestrator.startProcess('p2', 'c2');
+
+      const list = orchestrator.listProcesses();
+      expect(list).toHaveLength(2);
+      expect(list).toContainEqual(expect.objectContaining({ projectId: 'p1', channelId: 'c1' }));
+      expect(list).toContainEqual(expect.objectContaining({ projectId: 'p2', channelId: 'c2' }));
+    });
+
+    it('should return an empty list if no processes are managed', () => {
+      expect(orchestrator.listProcesses()).toEqual([]);
     });
   });
 
@@ -246,6 +352,216 @@ describe('ProcessOrchestrator', () => {
          const projectId = await orchestrator.startProcess(input, '123');
          expect(projectId).toBe(expected);
        }
+    });
+  });
+
+  describe('persistence', () => {
+    it('should save mapping when starting a process', async () => {
+      vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
+      vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, []));
+      vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 123, name: 'gcb-test' }]));
+
+      await orchestrator.startProcess('test', 'channel-1', ['gemini'], 'user-1');
+
+      expect(mockStore.saveMapping).toHaveBeenCalledWith('test', 'channel-1', {
+        pm2Id: 123,
+        ownerId: 'user-1'
+      });
+    });
+
+    it('should delete mapping when stopping a process', async () => {
+      vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
+      vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, []));
+      vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 123, name: 'gcb-test' }]));
+      await orchestrator.startProcess('test', 'channel-1');
+
+      vi.mocked(pm2.stop).mockImplementation((name: any, cb: any) => cb(null));
+      vi.mocked(pm2.delete).mockImplementation((name: any, cb: any) => cb(null));
+
+      await orchestrator.stopProcess('test');
+
+      expect(mockStore.deleteMapping).toHaveBeenCalledWith('test');
+    });
+
+    it('should recover mapping from StateStore in getProcessInfo if not in memory', () => {
+      mockStore.getMapping.mockReturnValue({
+        projectId: 'test',
+        channelId: 'channel-1',
+        pm2Id: 123
+      });
+
+      const info = orchestrator.getProcessInfo('test');
+
+      expect(mockStore.getMapping).toHaveBeenCalledWith('test');
+      expect(info).toEqual({
+        projectId: 'test',
+        channelId: 'channel-1',
+        pm2Id: 123
+      });
+    });
+
+    it('should recover mapping from StateStore in getProjectFromChannel if not in memory', () => {
+      mockStore.getProjectByChannel.mockReturnValue({
+        projectId: 'test',
+        channelId: 'channel-1',
+        pm2Id: 123
+      });
+
+      const projectId = orchestrator.getProjectFromChannel('channel-1');
+
+      expect(mockStore.getProjectByChannel).toHaveBeenCalledWith('channel-1');
+      expect(projectId).toBe('test');
+    });
+  });
+
+  describe('lifecycle events', () => {
+    let mockBus: EventEmitter;
+
+    beforeEach(async () => {
+      mockBus = new EventEmitter();
+      vi.mocked(pm2.launchBus).mockImplementation((cb: any) => cb(null, mockBus));
+      vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
+      vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, []));
+      vi.mocked(pm2.start).mockImplementation((options: any, cb: any) => cb(null, [{ pm_id: 123, name: 'gcb-test-project' }]));
+
+      await orchestrator.startProcess('test-project', 'channel-123');
+      await orchestrator.startLogTailing();
+    });
+
+    it('should emit PROCESS_ONLINE when a managed process goes online', () => {
+      const onlineSpy = vi.fn();
+      orchestrator.on('PROCESS_ONLINE', onlineSpy);
+
+      mockBus.emit('process:event', {
+        event: 'online',
+        process: { name: 'gcb-test-project' }
+      });
+
+      expect(onlineSpy).toHaveBeenCalledWith({
+        projectId: 'test-project',
+        channelId: 'channel-123'
+      });
+    });
+
+    it('should emit PROCESS_EXITED when a managed process exits with code 0', () => {
+      const exitSpy = vi.fn();
+      orchestrator.on('PROCESS_EXITED', exitSpy);
+
+      mockBus.emit('process:event', {
+        event: 'exit',
+        process: { 
+          name: 'gcb-test-project',
+          status: 'stopped',
+          exit_code: 0 
+        }
+      });
+
+      expect(exitSpy).toHaveBeenCalledWith({
+        projectId: 'test-project',
+        channelId: 'channel-123'
+      });
+    });
+
+    it('should emit PROCESS_CRASHED when a managed process exits with non-zero code', () => {
+      const crashSpy = vi.fn();
+      orchestrator.on('PROCESS_CRASHED', crashSpy);
+
+      mockBus.emit('process:event', {
+        event: 'exit',
+        process: { 
+          name: 'gcb-test-project',
+          status: 'errored',
+          exit_code: 1 
+        }
+      });
+
+      expect(crashSpy).toHaveBeenCalledWith({
+        projectId: 'test-project',
+        channelId: 'channel-123'
+      });
+    });
+
+    it('should ignore events from unmanaged processes', () => {
+      const onlineSpy = vi.fn();
+      orchestrator.on('PROCESS_ONLINE', onlineSpy);
+
+      mockBus.emit('process:event', {
+        event: 'online',
+        process: { name: 'other-process' }
+      });
+
+      expect(onlineSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('syncWithPersistentStore()', () => {
+    it('should sync projects that are in both DB and PM2', async () => {
+      // DB has project-1
+      mockStore.listActiveProjects.mockReturnValue([
+        { projectId: 'project-1', channelId: 'channel-1', pm2Id: 101 }
+      ]);
+
+      // PM2 has project-1
+      vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
+      vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, [
+        {
+          pm_id: 101,
+          name: 'gcb-project-1',
+          pm2_env: { GCB_CHANNEL_ID: 'channel-1', GCB_PROJECT_ID: 'project-1' }
+        }
+      ]));
+
+      await orchestrator.init(); // init populates from PM2
+      await orchestrator.syncWithPersistentStore();
+
+      const info = orchestrator.getProcessInfo('project-1');
+      expect(info).toEqual({
+        projectId: 'project-1',
+        channelId: 'channel-1',
+        pm2Id: 101
+      });
+      expect(mockStore.deleteMapping).not.toHaveBeenCalled();
+    });
+
+    it('should mark project as stopped if in DB but missing in PM2', async () => {
+      // DB has project-1
+      mockStore.listActiveProjects.mockReturnValue([
+        { projectId: 'project-1', channelId: 'channel-1', pm2Id: 101 }
+      ]);
+
+      // PM2 is empty
+      vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
+      vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, []));
+
+      await orchestrator.init();
+      await orchestrator.syncWithPersistentStore();
+
+      expect(mockStore.deleteMapping).toHaveBeenCalledWith('project-1');
+      // Mock getMapping to return null since it's stopped
+      mockStore.getMapping.mockReturnValue(null);
+      expect(() => orchestrator.getProcessInfo('project-1')).toThrow();
+    });
+
+    it('should log a warning for orphaned PM2 processes (in PM2 but not in DB)', async () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      
+      // DB is empty
+      mockStore.listActiveProjects.mockReturnValue([]);
+
+      // PM2 has an orphan
+      vi.mocked(pm2.connect).mockImplementation((cb: any) => cb(null));
+      vi.mocked(pm2.list).mockImplementation((cb: any) => cb(null, [
+        {
+          pm_id: 102,
+          name: 'gcb-orphan',
+          pm2_env: { GCB_CHANNEL_ID: 'channel-orphan', GCB_PROJECT_ID: 'orphan' }
+        }
+      ]));
+
+      await orchestrator.init();
+      await orchestrator.syncWithPersistentStore();
+
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Orphaned PM2 process found: gcb-orphan'));
     });
   });
 });

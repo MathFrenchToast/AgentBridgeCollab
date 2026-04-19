@@ -1,0 +1,115 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { McpBridge } from '@/core/mcp-bridge';
+describe('McpBridge Commands', () => {
+    let bridge;
+    let mockProvider;
+    let mockOrchestrator;
+    let commandCallback;
+    beforeEach(() => {
+        mockProvider = {
+            sendMessage: vi.fn().mockResolvedValue(undefined),
+            createSpace: vi.fn().mockResolvedValue('channel-123'),
+            onCommand: vi.fn().mockImplementation((cb) => {
+                commandCallback = cb;
+            }),
+        };
+        mockOrchestrator = {
+            startProcess: vi.fn().mockResolvedValue('test-project'),
+            stopProcess: vi.fn().mockResolvedValue(undefined),
+            getProcessInfo: vi.fn(),
+            getProjectFromChannel: vi.fn(),
+            listProcesses: vi.fn().mockReturnValue([]),
+            on: vi.fn(),
+        };
+        bridge = new McpBridge(mockProvider, mockOrchestrator);
+        bridge.listenToProviderCommands();
+    });
+    it('should handle /start command', async () => {
+        const command = {
+            type: 'start',
+            projectId: 'my-project',
+            userId: 'user-1',
+            channelId: 'general',
+        };
+        await commandCallback(command);
+        expect(mockProvider.createSpace).toHaveBeenCalledWith('my-project');
+        expect(mockOrchestrator.startProcess).toHaveBeenCalledWith('my-project', 'channel-123');
+        expect(mockProvider.sendMessage).toHaveBeenCalledWith('channel-123', expect.stringContaining('Spawned process: test-project'));
+    });
+    it('should sanitize projectId in /start command', async () => {
+        const command = {
+            type: 'start',
+            projectId: 'My Project! 123',
+            userId: 'user-1',
+            channelId: 'general',
+        };
+        await commandCallback(command);
+        const expectedSanitizedId = 'my-project-123';
+        expect(mockProvider.createSpace).toHaveBeenCalledWith(expectedSanitizedId);
+        expect(mockOrchestrator.startProcess).toHaveBeenCalledWith(expectedSanitizedId, 'channel-123');
+    });
+    it('should handle /stop command in a project channel', async () => {
+        const command = {
+            type: 'stop',
+            userId: 'user-1',
+            channelId: 'channel-123',
+        };
+        mockOrchestrator.getProjectFromChannel.mockReturnValue('test-project');
+        await commandCallback(command);
+        expect(mockOrchestrator.getProjectFromChannel).toHaveBeenCalledWith('channel-123');
+        expect(mockOrchestrator.stopProcess).toHaveBeenCalledWith('test-project');
+        expect(mockProvider.sendMessage).toHaveBeenCalledWith('channel-123', expect.stringContaining('Process test-project stopped.'));
+    });
+    it('should handle /status command', async () => {
+        const command = {
+            type: 'status',
+            userId: 'user-1',
+            channelId: 'channel-123',
+        };
+        mockOrchestrator.getProjectFromChannel.mockReturnValue('test-project');
+        mockOrchestrator.getProcessInfo.mockReturnValue({
+            projectId: 'test-project',
+            channelId: 'channel-123',
+            pm2Id: 1
+        });
+        await commandCallback(command);
+        expect(mockOrchestrator.getProcessInfo).toHaveBeenCalledWith('test-project');
+        expect(mockProvider.sendMessage).toHaveBeenCalledWith('channel-123', expect.stringContaining('Status for test-project'));
+    });
+    it('should handle /list command', async () => {
+        const command = {
+            type: 'list',
+            userId: 'user-1',
+            channelId: 'channel-123',
+        };
+        mockOrchestrator.listProcesses.mockReturnValue([
+            { projectId: 'p1', channelId: 'c1', pm2Id: 1 },
+            { projectId: 'p2', channelId: 'c2', pm2Id: 2 },
+        ]);
+        await commandCallback(command);
+        expect(mockOrchestrator.listProcesses).toHaveBeenCalled();
+        expect(mockProvider.sendMessage).toHaveBeenCalledWith('channel-123', expect.stringContaining('Active processes:'));
+        expect(mockProvider.sendMessage).toHaveBeenCalledWith('channel-123', expect.stringContaining('p1'));
+        expect(mockProvider.sendMessage).toHaveBeenCalledWith('channel-123', expect.stringContaining('p2'));
+    });
+    it('should notify user if /start missing projectId', async () => {
+        const command = {
+            type: 'start',
+            userId: 'user-1',
+            channelId: 'general',
+        };
+        await commandCallback(command);
+        expect(mockProvider.sendMessage).toHaveBeenCalledWith('general', expect.stringContaining('Usage: /start <projectId>'));
+    });
+    it('should notify user if command fails', async () => {
+        const command = {
+            type: 'stop',
+            userId: 'user-1',
+            channelId: 'channel-123',
+        };
+        mockOrchestrator.getProjectFromChannel.mockReturnValue('test-project');
+        mockOrchestrator.stopProcess.mockRejectedValue(new Error('Stop failed'));
+        await commandCallback(command);
+        expect(mockProvider.sendMessage).toHaveBeenCalledWith('channel-123', expect.stringContaining('Error: Stop failed'), 'error');
+    });
+});

@@ -34,7 +34,20 @@ export interface ProcessMetadata {
   channelId: string;
 }
 
+export interface ProjectContext {
+  projectId: string;
+  channelId: string;
+  pm2Id: number;
+}
+
 export type GcbEvent =
   | { type: 'LOG_EMITTED'; payload: LogPayload }
   | { type: 'STATUS_CHANGED'; payload: StatusPayload }
   | { type: 'INPUT_REQUESTED'; payload: InputRequestPayload };
+
+export interface AuditEntry {
+  userId: string;
+  action: string;
+  projectId?: string;
+  timestamp?: string;
+}

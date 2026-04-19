@@ -50,6 +50,8 @@ export interface GcbCommand {
 export interface ICollaborationProvider {
   /** Initialize connection to the platform */
   connect(): Promise<void>;
+  /** Gracefully disconnect from the platform */
+  disconnect(): Promise<void>;
   /** Create a dedicated space for a project (e.g., Discord Channel or Slack Thread) */
   createSpace(projectId: string): Promise<string>;
   /** Post a message to a specific space */
@@ -94,6 +96,30 @@ const orchestrator = new ProcessOrchestrator(pm2);
 const bridge = new McpBridge(provider, orchestrator);
 ```
 
+### 4.5 Bidirectional MCP Communication (Stdio Bridge)
+Since PM2 does not natively support continuous `stdin` piping via its programmatic API, GCB implements a **Stdio Bridge** using a Launcher Shim:
+
+1.  **Launcher Shim (`src/core/launcher.ts`)**: Instead of spawning the Gemini CLI directly, the `ProcessOrchestrator` starts this shim. The shim spawns the Gemini CLI as a child process and maintains a persistent `stdin` connection.
+2.  **Inbound Path (Agent -> Bridge)**: 
+    *   Agent writes to `stdout`.
+    *   PM2 captures the output.
+    *   `ProcessOrchestrator` picks it up via the PM2 Bus (`LOG_EMITTED`).
+    *   `McpBridge` detects JSON-RPC messages and routes them to the corresponding MCP Server instance.
+3.  **Outbound Path (Bridge -> Agent)**:
+    *   `McpBridge` writes to the MCP Server's output stream.
+    *   `ProcessOrchestrator.sendToProcess()` is called.
+    *   Orchestrator uses `pm2.sendDataToProcessId()` to send an IPC message (topic: `gcb:stdin`).
+    *   Launcher Shim receives the IPC message and writes the payload to the Agent's `stdin`.
+
+### 4.6 Persistence Layer (Proposed)
+To support system recovery and advanced multi-tenant features, GCB will incorporate a lightweight Persistence Layer:
+*   **Technology:** SQLite (via `better-sqlite3`) for robust, local, and file-based storage.
+*   **Schema:**
+    *   `projects`: `id`, `name`, `status`, `created_at`, `owner_id`.
+    *   `spaces`: `project_id`, `provider_type`, `space_id` (e.g., channelId).
+    *   `audit_log`: `timestamp`, `user_id`, `action`, `project_id`.
+*   **Responsibility:** The `StateStore` module will provide an interface for the `McpBridge` and `Orchestrator` to persist and retrieve project metadata, decoupling life-cycle management from PM2's transient state.
+
 ## 5. Coding Standards & Best Practices
 *   **Error Handling:** Use a `Result<T, E>` pattern or standardized custom Error classes (e.g., `ProviderError`, `OrchestrationError`).
 *   **PM2 Best Practices:**
@@ -101,4 +127,42 @@ const bridge = new McpBridge(provider, orchestrator);
     *   Use `max_memory_restart` to prevent memory leaks in agents.
     *   Each process must be named using the `projectId` for easy identification.
 *   **Sanitization:** Strict shell command sanitization for PM2 process names using a whitelist of allowed characters (a-z, 0-9, dash).
+
+## 6. Security & Infrastructure
+
+### 6.1 User Authorization (Whitelist)
+To prevent unauthorized use, the `DiscordProvider` must implement a mandatory whitelist check:
+- **`AUTHORIZED_USER_IDS`**: A comma-separated list of Discord User IDs in the `.env` file.
+- **Validation**: Any command received via `onCommand` MUST be dropped if the `userId` is not present in the whitelist.
+- **Audit**: Log unauthorized attempts with the user's tag and ID for audit purposes.
+
+### 6.2 Sanitization & Injection Prevention
+The `ProcessOrchestrator` is responsible for sanitizing all user-provided strings before passing them to the PM2 API or shell:
+- **`projectId`**: MUST only contain alphanumeric characters and hyphens. Use a regex to enforce this: `/^[a-z0-9-]+$/`.
+- **`args`**: Any user-provided arguments must be treated as strings and escaped if used in a shell context.
+
+### 6.4 Dynamic Authorization
+The `StateStore` will maintain an `authorized_users` table. The `McpBridge` will handle `/whitelist` commands to update this table, and Providers will query it for command authorization, moving away from static environment variables.
+
+### 6.5 Multi-Provider Routing
+The `ProviderFactory` supports `slack` as a valid provider, utilizing the Slack Bolt SDK. 
+- **Isolation**: Slack isolation is achieved through **threads** within a single channel specified by `SLACK_CHANNEL_ID`. The `space_id` in GCB corresponds to the `thread_ts` (timestamp of the initial message that started the thread).
+- **Socket Mode**: GCB uses Slack's Socket Mode for connectivity, requiring a `SLACK_APP_TOKEN` and `SLACK_BOT_TOKEN`. This eliminates the need for public HTTP endpoints.
+- **Workflow**:
+    1.  `createSpace` posts an initial "Project [ID] started" message to the main channel.
+    2.  The timestamp (`ts`) of that message is stored as the project's `space_id`.
+    3.  All subsequent communication for that project (agent logs, HITL prompts) is posted as replies to that thread using the `thread_ts`.
+
+## 7. Developer Experience & Testing
+*   **Unified Test Suite:** All tests are strictly TypeScript (`.ts`) using `vitest`. Redundant `.js` tests are prohibited.
+*   **Mocking:** Unit tests for providers MUST use robust mocking of platform SDKs (discord.js, bolt).
+
+## 8. Documentation Structure
+To support onboarding and multi-platform scaling, documentation is organized as follows:
+*   **`README.md`**: Project overview, core value proposition, and quick links.
+*   **`docs/onboarding/`**:
+    *   `quick-start.md`: Initial environment setup and first execution.
+    *   `discord-setup.md`: Step-by-step guide for Discord server and bot configuration.
+    *   `slack-setup.md`: Step-by-step guide for Slack App and Socket Mode configuration.
+*   **`specs/`**: Technical specifications, architectural decisions, and product roadmap.
 

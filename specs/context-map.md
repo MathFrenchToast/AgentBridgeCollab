@@ -5,11 +5,14 @@
 
 | Feature / Module | Key Files / Directories | Entry Point |
 | :--- | :--- | :--- |
-| **Core Orchestration** | `src/core/process-orchestrator.ts` | `src/core/process-orchestrator.ts` |
+| **Core Orchestration** | `src/core/process-orchestrator.ts`, `src/core/launcher.ts` | `src/core/process-orchestrator.ts` |
 | **MCP Bridge** | `src/core/mcp-bridge.ts` | `src/core/mcp-bridge.ts` |
 | **Provider Abstraction** | `src/providers/collaboration-provider.ts` | `src/providers/collaboration-provider.ts` |
 | **Discord Provider** | `src/providers/discord-provider.ts` | `src/providers/discord-provider.ts` |
+| **Slack Provider (Planned)** | `src/providers/slack-provider.ts` | `src/providers/slack-provider.ts` |
 | **Config & Validation** | `src/core/config-validator.ts` | `src/core/config-validator.ts` |
+| **Security & Authorization** | `src/core/state-store.ts`, `src/providers/discord-provider.ts` | `src/core/state-store.ts` |
+| **Persistence** | `src/core/state-store.ts` | `src/core/state-store.ts` |
 | **Type Definitions** | `src/types/` | `src/types/index.ts` |
 
 ## Dependency Graph

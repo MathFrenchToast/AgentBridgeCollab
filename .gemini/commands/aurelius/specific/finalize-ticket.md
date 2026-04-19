@@ -1,1 +1,0 @@
-Gitflow: Si la validation est ok, alors crée un commit pour l'US traitée, et si tu es sur une feature branche, git push sur le remote.

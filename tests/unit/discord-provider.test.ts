@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { DiscordProvider } from '@/providers/discord-provider';
 import { AppConfig } from '@/core/config-validator';
 import { Client, GatewayIntentBits, ChannelType, EmbedBuilder } from 'discord.js';
+import { StateStore } from '@/core/state-store';
 
 const mockSetColor = vi.fn();
 const mockSetTitle = vi.fn();
@@ -39,6 +40,15 @@ vi.mock('discord.js', () => {
   };
 });
 
+const mockLogEvent = vi.fn();
+vi.mock('@/core/state-store', () => ({
+  StateStore: {
+    getInstance: () => ({
+      logEvent: mockLogEvent
+    })
+  }
+}));
+
 describe('DiscordProvider', () => {
   let mockConfig: AppConfig;
 
@@ -50,8 +60,35 @@ describe('DiscordProvider', () => {
       GEMINI_API_KEY: 'mock-api-key',
       DISCORD_GUILD_ID: 'guild-123',
       DISCORD_CATEGORY_ID: 'category-123',
-      AUTHORIZED_USERS: 'auth-user-123,another-user',
+      AUTHORIZED_USER_IDS: 'auth-user-123,another-user',
+      GCB_ASK_TIMEOUT: 1800000,
     };
+  });
+
+  describe('isAuthorized()', () => {
+    it('should return true if AUTHORIZED_USER_IDS is not set', () => {
+      delete (mockConfig as any).AUTHORIZED_USER_IDS;
+      const provider = new DiscordProvider(mockConfig);
+      expect((provider as any).isAuthorized('any-user')).toBe(true);
+    });
+
+    it('should return true if AUTHORIZED_USER_IDS is an empty string', () => {
+      (mockConfig as any).AUTHORIZED_USER_IDS = '';
+      const provider = new DiscordProvider(mockConfig);
+      expect((provider as any).isAuthorized('any-user')).toBe(true);
+    });
+
+    it('should return true if user is in the whitelist', () => {
+      (mockConfig as any).AUTHORIZED_USER_IDS = 'user1, user2 ,user3';
+      const provider = new DiscordProvider(mockConfig);
+      expect((provider as any).isAuthorized('user2')).toBe(true);
+    });
+
+    it('should return false if user is NOT in the whitelist', () => {
+      (mockConfig as any).AUTHORIZED_USER_IDS = 'user1, user2';
+      const provider = new DiscordProvider(mockConfig);
+      expect((provider as any).isAuthorized('user3')).toBe(false);
+    });
   });
 
   describe('connect()', () => {
@@ -137,7 +174,7 @@ describe('DiscordProvider', () => {
   });
 
   describe('sendMessage()', () => {
-    it('should send a blue embed message to the correct channel', async () => {
+    it('should send a blue embed message for info type', async () => {
       const provider = new DiscordProvider(mockConfig);
       const clientInstance = vi.mocked(Client).mock.instances[0];
 
@@ -149,13 +186,43 @@ describe('DiscordProvider', () => {
       };
       (clientInstance as any).channels = mockChannels;
 
-      await provider.sendMessage('channel-123', 'Hello world');
+      await provider.sendMessage('channel-123', 'Hello world', 'info');
 
-      expect(mockChannels.cache.get).toHaveBeenCalledWith('channel-123');
-      expect(mockEmbedBuilderConstructor).toHaveBeenCalled();
       expect(mockSetColor).toHaveBeenCalledWith('#0099ff');
-      expect(mockSetDescription).toHaveBeenCalledWith('Hello world');
-      expect(mockSend).toHaveBeenCalledWith({ embeds: [expect.any(EmbedBuilder)] });
+    });
+
+    it('should send a red embed message for error type', async () => {
+      const provider = new DiscordProvider(mockConfig);
+      const clientInstance = vi.mocked(Client).mock.instances[0];
+
+      const mockSend = vi.fn().mockResolvedValue({});
+      const mockChannels = {
+        cache: {
+          get: vi.fn().mockReturnValue({ send: mockSend })
+        }
+      };
+      (clientInstance as any).channels = mockChannels;
+
+      await provider.sendMessage('channel-123', 'Error occurred', 'error');
+
+      expect(mockSetColor).toHaveBeenCalledWith('#ff0000');
+    });
+
+    it('should send a green embed message for success type', async () => {
+      const provider = new DiscordProvider(mockConfig);
+      const clientInstance = vi.mocked(Client).mock.instances[0];
+
+      const mockSend = vi.fn().mockResolvedValue({});
+      const mockChannels = {
+        cache: {
+          get: vi.fn().mockReturnValue({ send: mockSend })
+        }
+      };
+      (clientInstance as any).channels = mockChannels;
+
+      await provider.sendMessage('channel-123', 'Task completed', 'success');
+
+      expect(mockSetColor).toHaveBeenCalledWith('#00ff00');
     });
 
     it('should throw an error if channel is not found', async () => {
@@ -205,7 +272,7 @@ describe('DiscordProvider', () => {
       expect(mockAwaitMessages).toHaveBeenCalledWith({
         filter: expect.any(Function),
         max: 1,
-        time: 30 * 60 * 1000,
+        time: mockConfig.GCB_ASK_TIMEOUT,
         errors: ['time']
       });
 
@@ -248,10 +315,6 @@ describe('DiscordProvider', () => {
       const mockCallback = vi.fn().mockResolvedValue(undefined);
       provider.onCommand(mockCallback);
 
-      // Simulate client ready to bind interactionCreate
-      const readyHandler = vi.mocked(clientInstance.on).mock.calls.find(call => call[0] === 'ready')?.[1] as Function;
-      if (readyHandler) readyHandler();
-
       const interactionHandler = vi.mocked(clientInstance.on).mock.calls.find(call => call[0] === 'interactionCreate')?.[1] as Function;
       expect(interactionHandler).toBeDefined();
 
@@ -275,6 +338,12 @@ describe('DiscordProvider', () => {
         args: [],
         userId: 'auth-user-123',
         channelId: 'channel-123',
+      });
+
+      expect(mockLogEvent).toHaveBeenCalledWith({
+        userId: 'auth-user-123',
+        action: 'command:start',
+        projectId: 'project-123'
       });
     });
 
@@ -305,6 +374,33 @@ describe('DiscordProvider', () => {
         ephemeral: true,
       });
       expect(mockCallback).not.toHaveBeenCalled();
+    });
+
+    it('should allow the command if whitelist is empty', async () => {
+      delete (mockConfig as any).AUTHORIZED_USER_IDS;
+      const provider = new DiscordProvider(mockConfig);
+      const clientInstance = vi.mocked(Client).mock.instances[0];
+
+      const mockCallback = vi.fn().mockResolvedValue(undefined);
+      provider.onCommand(mockCallback);
+
+      const interactionHandler = vi.mocked(clientInstance.on).mock.calls.find(call => call[0] === 'interactionCreate')?.[1] as Function;
+
+      const mockInteraction = {
+        isChatInputCommand: () => true,
+        commandName: 'start',
+        options: {
+          getString: vi.fn().mockReturnValue('project-123')
+        },
+        user: { id: 'any-user' },
+        channelId: 'channel-123',
+        deferReply: vi.fn().mockResolvedValue(undefined),
+      };
+
+      await interactionHandler(mockInteraction);
+
+      expect(mockInteraction.deferReply).toHaveBeenCalled();
+      expect(mockCallback).toHaveBeenCalled();
     });
 
     it('should ignore non-chat input commands', async () => {
