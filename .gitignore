@@ -21,4 +21,7 @@ coverage/
 pm2.log
 pm2.pid
 *.tmp
-*.loggcb.sqlite
+*.log
+*.sqlite
+abc.sqlite
+gcb.sqlite
