@@ -1,12 +1,20 @@
 import pm2 from 'pm2';
 import { ProcessMetadata } from '@/types';
 import { EventEmitter } from 'events';
+import { sanitizeProjectName } from './utils.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { StateStore } from './state-store.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export class ProcessOrchestrator extends EventEmitter {
   private processes: Map<string, ProcessMetadata> = new Map();
+  private store: StateStore;
 
-  constructor() {
+  constructor(store?: StateStore) {
     super();
+    this.store = store || StateStore.getInstance();
   }
 
   /**
@@ -45,7 +53,31 @@ export class ProcessOrchestrator extends EventEmitter {
   }
 
   /**
-   * Starts tailing logs for all managed processes.
+   * Synchronizes the internal state with the persistent store and PM2.
+   */
+  async syncWithPersistentStore(): Promise<void> {
+    const activeProjects = this.store.listActiveProjects();
+    const pm2Projects = new Set(this.processes.keys());
+
+    // 1. Handle Missing PM2 Processes (In DB but not in PM2)
+    for (const project of activeProjects) {
+      if (!pm2Projects.has(project.projectId)) {
+        console.warn(`Project ${project.projectId} marked as running in DB but missing in PM2. Updating DB status to stopped.`);
+        this.store.deleteMapping(project.projectId);
+      }
+    }
+
+    // 2. Handle Orphaned PM2 Processes (In PM2 but not in DB)
+    for (const projectId of pm2Projects) {
+      const dbProject = activeProjects.find(p => p.projectId === projectId);
+      if (!dbProject) {
+        console.warn(`Orphaned PM2 process found: gcb-${projectId}. It is running but not tracked as 'running' in the persistent store.`);
+      }
+    }
+  }
+
+  /**
+   * Starts tailing logs and monitoring lifecycle events for all managed processes.
    */
   async startLogTailing(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -62,9 +94,70 @@ export class ProcessOrchestrator extends EventEmitter {
           this.handleLog(packet, 'stderr');
         });
 
+        bus.on('process:event', (packet) => {
+          this.handleProcessEvent(packet);
+        });
+
+        bus.on('process:exception', (packet) => {
+          this.handleException(packet);
+        });
+
         resolve();
       });
     });
+  }
+
+  private handleException(packet: any): void {
+    const pm2Name = packet.process?.name;
+    if (!pm2Name || !pm2Name.startsWith('gcb-')) {
+      return;
+    }
+
+    const projectId = pm2Name.replace('gcb-', '');
+    this.store.logEvent({
+      userId: 'system',
+      action: 'process:exception',
+      projectId: projectId
+    });
+  }
+
+  private handleProcessEvent(packet: any): void {
+    const pm2Name = packet.process?.name;
+    if (!pm2Name || !pm2Name.startsWith('gcb-')) {
+      return;
+    }
+
+    const projectId = pm2Name.replace('gcb-', '');
+    const info = this.processes.get(projectId);
+
+    if (!info) {
+      return;
+    }
+
+    switch (packet.event) {
+      case 'online':
+        this.emit('PROCESS_ONLINE', { projectId, channelId: info.channelId });
+        break;
+      case 'exit':
+        if (packet.process.exit_code === 0) {
+          this.emit('PROCESS_EXITED', { projectId, channelId: info.channelId });
+        } else {
+          this.emit('PROCESS_CRASHED', { projectId, channelId: info.channelId });
+          this.store.logEvent({
+            userId: 'system',
+            action: 'process:crash',
+            projectId: projectId
+          });
+        }
+        break;
+      case 'restart':
+        this.store.logEvent({
+          userId: 'system',
+          action: 'process:restart',
+          projectId: projectId
+        });
+        break;
+    }
   }
 
   private handleLog(packet: any, type: 'stdout' | 'stderr'): void {
@@ -90,21 +183,20 @@ export class ProcessOrchestrator extends EventEmitter {
   }
 
   /**
-   * Sanitizes a project name to kebab-case alphanumeric.
-   */
-  private sanitizeName(name: string): string {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
-  }
-
-  /**
    * Spawns a new PM2 process for a project.
    */
-  async startProcess(projectName: string, channelId: string): Promise<string> {
-    const projectId = this.sanitizeName(projectName);
+  async startProcess(
+    projectName: string, 
+    channelId: string, 
+    agentArgs: string[] = ['gemini'],
+    ownerId: string = 'system'
+  ): Promise<string> {
+    const projectId = sanitizeProjectName(projectName);
     const pm2Name = `gcb-${projectId}`;
+    
+    // In development we use tsx to run the launcher.ts shim.
+    // In production, this would point to the compiled launcher.js.
+    const launcherPath = path.resolve(__dirname, 'launcher.ts');
 
     return new Promise((resolve, reject) => {
       pm2.connect((connectErr) => {
@@ -115,7 +207,9 @@ export class ProcessOrchestrator extends EventEmitter {
         pm2.start(
           {
             name: pm2Name,
-            script: 'gemini', // Placeholder script as per architect's note
+            script: launcherPath,
+            args: agentArgs,
+            interpreter: 'tsx', // Using tsx for development
             autorestart: true,
             stop_exit_codes: [0],
             env: {
@@ -130,10 +224,17 @@ export class ProcessOrchestrator extends EventEmitter {
             
             const app = apps?.[0];
             if (app && app.pm_id !== undefined) {
-              this.processes.set(projectId, {
+              const metadata = {
                 pm2Id: app.pm_id,
                 projectId,
                 channelId,
+              };
+              this.processes.set(projectId, metadata);
+              
+              // Persist mapping
+              this.store.saveMapping(projectId, channelId, { 
+                pm2Id: app.pm_id, 
+                ownerId 
               });
             }
 
@@ -145,10 +246,48 @@ export class ProcessOrchestrator extends EventEmitter {
   }
 
   /**
+   * Sends data to a process's stdin via PM2 IPC.
+   */
+  async sendToProcess(projectId: string, data: string): Promise<void> {
+    const info = this.getProcessInfo(projectId);
+
+    return new Promise((resolve, reject) => {
+      pm2.sendDataToProcessId(
+        {
+          id: info.pm2Id,
+          topic: 'gcb:stdin',
+          data: data,
+        },
+        (err, res) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve();
+        }
+      );
+    });
+  }
+
+  /**
    * Retrieves process metadata by projectId.
    */
   getProcessInfo(projectId: string): ProcessMetadata {
-    const info = this.processes.get(projectId);
+    let info = this.processes.get(projectId);
+    
+    if (!info) {
+      // Try to recover from persistent store
+      const mapping = this.store.getMapping(projectId);
+      if (mapping) {
+        info = {
+          pm2Id: mapping.pm2Id,
+          projectId: mapping.projectId,
+          channelId: mapping.channelId,
+        };
+        // Restore to in-memory map
+        this.processes.set(projectId, info);
+      }
+    }
+
     if (!info) {
       throw new Error(`Process with ID ${projectId} not found`);
     }
@@ -182,8 +321,9 @@ export class ProcessOrchestrator extends EventEmitter {
               return reject(deleteErr);
             }
 
-            // 3. Always remove from internal map
+            // 3. Always remove from internal map and persist
             this.processes.delete(projectId);
+            this.store.deleteMapping(projectId);
             resolve();
           });
         });
@@ -200,6 +340,19 @@ export class ProcessOrchestrator extends EventEmitter {
         return projectId;
       }
     }
+    
+    // Try to recover from persistent store
+    const mapping = this.store.getProjectByChannel(channelId);
+    if (mapping) {
+      // Restore to in-memory map
+      this.processes.set(mapping.projectId, {
+        pm2Id: mapping.pm2Id,
+        projectId: mapping.projectId,
+        channelId: mapping.channelId,
+      });
+      return mapping.projectId;
+    }
+
     return undefined;
   }
 

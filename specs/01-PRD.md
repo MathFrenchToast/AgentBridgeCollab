@@ -22,6 +22,11 @@
 *   **Rule 6:** The `/status` command must return the current PM2 state (online, stopping, errored) and uptime for a specific `projectId`.
 *   **Rule 7:** The `/list` command must provide a summary table of all active `projectId`s and their corresponding `channelId`.
 
+### Feature: Advanced Orchestration & Security
+*   **Rule 1 (Dynamic Whitelist):** Authorized users must be manageable at runtime via commands (e.g., `/whitelist add @user`). Changes MUST be persisted in the `StateStore`.
+*   **Rule 2 (Health Monitoring):** The bridge MUST implement a heartbeat mechanism to detect if an agent process is unresponsive despite being "online" in PM2.
+*   **Rule 3 (Rich Interactivity):** Providers SHOULD use platform-native interactive elements (Buttons, Menus) for frequent actions to reduce command typing.
+
 ## 2. Data Dictionary
 *   **`projectId`:** A unique, sanitized string used as the PM2 process name and channel label.
 *   **`channelId` / `threadTs`:** Platform-specific identifier for the communication space.

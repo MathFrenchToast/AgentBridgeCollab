@@ -1,6 +1,7 @@
 import { ICollaborationProvider, GcbCommand } from '@/providers/collaboration-provider';
 import { AppConfig } from '@/core/config-validator';
 import { Client, GatewayIntentBits, ChannelType, EmbedBuilder, TextChannel, Message } from 'discord.js';
+import { StateStore } from '@/core/state-store';
 
 export class DiscordProvider implements ICollaborationProvider {
   private client: Client;
@@ -48,14 +49,20 @@ export class DiscordProvider implements ICollaborationProvider {
     return channel.id;
   }
 
-  async sendMessage(spaceId: string, content: string): Promise<void> {
+  async sendMessage(spaceId: string, content: string, type: 'info' | 'error' | 'success' = 'info'): Promise<void> {
     const channel = this.client.channels.cache.get(spaceId) as TextChannel;
     if (!channel) {
       throw new Error(`Channel with ID ${spaceId} not found`);
     }
 
+    const colors = {
+      info: '#0099ff', // Blue
+      error: '#ff0000', // Red
+      success: '#00ff00', // Green
+    };
+
     const embed = new EmbedBuilder()
-      .setColor('#0099ff') // Blue for Info/Logs
+      .setColor(colors[type] as any)
       .setDescription(content);
 
     await channel.send({ embeds: [embed] });
@@ -101,16 +108,13 @@ export class DiscordProvider implements ICollaborationProvider {
     this.client.on('interactionCreate', async (interaction) => {
       if (!interaction.isChatInputCommand()) return;
 
-      const authorizedUsersStr = (this.config as any).AUTHORIZED_USERS;
-      if (authorizedUsersStr) {
-        const authorizedUsers = authorizedUsersStr.split(',').map((u: string) => u.trim());
-        if (!authorizedUsers.includes(interaction.user.id)) {
-          await interaction.reply({
-            content: 'You are not authorized to use this command.',
-            ephemeral: true,
-          });
-          return;
-        }
+      if (!this.isAuthorized(interaction.user.id)) {
+        console.warn(`[Security] Unauthorized access attempt by user ID: ${interaction.user.id}`);
+        await interaction.reply({
+          content: 'You are not authorized to use this command.',
+          ephemeral: true,
+        });
+        return;
       }
 
       await interaction.deferReply();
@@ -126,7 +130,25 @@ export class DiscordProvider implements ICollaborationProvider {
         channelId: interaction.channelId,
       };
 
+      // Log command execution
+      StateStore.getInstance().logEvent({
+        userId: interaction.user.id,
+        action: `command:${commandType}`,
+        projectId: projectId
+      });
+
       await callback(gcbCommand);
     });
+  }
+
+  private isAuthorized(userId: string): boolean {
+    const authorizedUsersStr = (this.config as any).AUTHORIZED_USER_IDS;
+    
+    if (!authorizedUsersStr || authorizedUsersStr.trim() === '') {
+      return true; // Allow all if not set or empty
+    }
+
+    const authorizedUsers = authorizedUsersStr.split(',').map((u: string) => u.trim());
+    return authorizedUsers.includes(userId);
   }
 }

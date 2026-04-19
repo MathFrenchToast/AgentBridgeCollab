@@ -4,21 +4,41 @@ import dotenv from 'dotenv';
 // Load .env file
 dotenv.config();
 
+const DISCORD_TOKEN_REGEX = /^[M-Q][a-zA-Z0-9_-]{23}\.[a-zA-Z0-9_-]{6}\.[a-zA-Z0-9_-]{27,38}$/;
+const GEMINI_API_KEY_REGEX = /^AIza[a-zA-Z0-9_-]{35}$/;
+const DISCORD_USER_ID_REGEX = /^\d{17,19}$/;
+
 const BaseSchema = z.object({
   GCB_PROVIDER_TOKEN: z.string().min(1, 'GCB_PROVIDER_TOKEN is required'),
-  GEMINI_API_KEY: z.string().min(1, 'GEMINI_API_KEY is required'),
-  AUTHORIZED_USERS: z.string().optional(),
+  GEMINI_API_KEY: z.string().regex(GEMINI_API_KEY_REGEX, 'Invalid Gemini API key format'),
+  AUTHORIZED_USER_IDS: z.string().optional(),
   GCB_ASK_TIMEOUT: z.coerce.number().default(1800000), // Default: 30 minutes
+  GCB_RESTART_DELAY: z.coerce.number().default(3000), // Default: 3 seconds
+  DATABASE_PATH: z.string().default('./gcb.sqlite'),
 });
 
 const DiscordSchema = BaseSchema.extend({
   GCB_PROVIDER: z.literal('discord'),
+  GCB_PROVIDER_TOKEN: z.string().regex(DISCORD_TOKEN_REGEX, 'Invalid token format for Discord'),
+  AUTHORIZED_USER_IDS: z.string().optional()
+    .refine((val) => {
+      if (!val) return true;
+      return val.split(',').every(id => DISCORD_USER_ID_REGEX.test(id.trim()));
+    }, 'Invalid user ID format. Must be a comma-separated list of 17-19 digit strings.'),
   DISCORD_GUILD_ID: z.string().min(1, 'DISCORD_GUILD_ID is required for Discord provider'),
   DISCORD_CATEGORY_ID: z.string().min(1, 'DISCORD_CATEGORY_ID is required for Discord provider'),
 });
 
 const SlackSchema = BaseSchema.extend({
   GCB_PROVIDER: z.literal('slack'),
+  GCB_PROVIDER_TOKEN: z.string().regex(/^xoxb-/, 'Invalid token format for Slack (must start with xoxb-)'),
+  SLACK_APP_TOKEN: z.string().regex(/^xapp-/, 'Invalid SLACK_APP_TOKEN format (must start with xapp-)'),
+  SLACK_CHANNEL_ID: z.string().min(1, 'SLACK_CHANNEL_ID is required for Slack provider'),
+  AUTHORIZED_USER_IDS: z.string().optional()
+    .refine((val) => {
+      if (!val) return true;
+      return val.split(',').every(id => /^[UW][A-Z0-9]+$/.test(id.trim()));
+    }, 'Invalid user ID format for Slack. Must be a comma-separated list of Slack User IDs (e.g., U12345678).'),
 });
 
 const TeamsSchema = BaseSchema.extend({

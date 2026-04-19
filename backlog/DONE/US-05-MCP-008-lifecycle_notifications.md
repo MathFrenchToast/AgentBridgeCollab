@@ -1,7 +1,7 @@
 ---
 id: US-05-MCP-008
 title: Implement Process Lifecycle Notifications
-status: READY
+status: DONE
 type: feature
 ---
 # Description
@@ -15,15 +15,15 @@ As a User, I want to receive automated status updates in the project channel whe
 > *   @src/providers/collaboration-provider.ts
 
 # Acceptance Criteria (DoD)
-- [ ] **Scenario 1: Notification on Successful Start**
+- [x] **Scenario 1: Notification on Successful Start**
     - Given a `/start` command was successful
     - When the process enters the 'online' state
     - Then the bridge should send a "🚀 Agent started and connected." message to the project channel.
-- [ ] **Scenario 2: Notification on Graceful Exit**
+- [x] **Scenario 2: Notification on Graceful Exit**
     - Given a Gemini process finishes its task and exits with code 0
     - When the orchestrator detects the exit
     - Then the bridge should send a "✅ Agent completed its task and shut down gracefully." message.
-- [ ] **Scenario 3: Notification on Crash/Restart**
+- [x] **Scenario 3: Notification on Crash/Restart**
     - Given a Gemini process crashes (exit code != 0)
     - When the orchestrator detects the failure
     - Then the bridge should send a "⚠️ Agent crashed unexpectedly. PM2 is attempting a restart..." message.

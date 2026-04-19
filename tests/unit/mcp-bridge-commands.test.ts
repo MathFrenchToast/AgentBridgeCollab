@@ -41,8 +41,24 @@ describe('McpBridge Commands', () => {
     await commandCallback(command);
 
     expect(mockProvider.createSpace).toHaveBeenCalledWith('my-project');
-    expect(mockOrchestrator.startProcess).toHaveBeenCalledWith('my-project', 'channel-123');
+    expect(mockOrchestrator.startProcess).toHaveBeenCalledWith('my-project', 'channel-123', ['gemini'], 'user-1');
     expect(mockProvider.sendMessage).toHaveBeenCalledWith('channel-123', expect.stringContaining('Spawned process: test-project'));
+
+  });
+
+  it('should sanitize projectId in /start command', async () => {
+    const command: GcbCommand = {
+      type: 'start',
+      projectId: 'My Project! 123',
+      userId: 'user-1',
+      channelId: 'general',
+    };
+
+    await commandCallback(command);
+
+    const expectedSanitizedId = 'my-project-123';
+    expect(mockProvider.createSpace).toHaveBeenCalledWith(expectedSanitizedId);
+    expect(mockOrchestrator.startProcess).toHaveBeenCalledWith(expectedSanitizedId, 'channel-123', ['gemini'], 'user-1');
   });
 
   it('should handle /stop command in a project channel', async () => {
@@ -125,6 +141,6 @@ describe('McpBridge Commands', () => {
 
     await commandCallback(command);
 
-    expect(mockProvider.sendMessage).toHaveBeenCalledWith('channel-123', expect.stringContaining('Error: Stop failed'));
+    expect(mockProvider.sendMessage).toHaveBeenCalledWith('channel-123', expect.stringContaining('Error: Stop failed'), 'error');
   });
 });

@@ -2,6 +2,7 @@ import { loadConfig } from '@/core/config-validator';
 import { createProvider } from '@/providers/provider-factory';
 import { ProcessOrchestrator } from '@/core/process-orchestrator';
 import { McpBridge } from '@/core/mcp-bridge';
+import { StateStore } from '@/core/state-store';
 
 /**
  * Application Entry point setup function.
@@ -12,16 +13,20 @@ export const setup = async (): Promise<boolean> => {
     // 1. Validate environment variables
     const config = loadConfig();
 
-    // 2. Initialize the CollaborationProvider
+    // 2. Initialize StateStore
+    const store = StateStore.getInstance(config.DATABASE_PATH);
+
+    // 3. Initialize the CollaborationProvider
     const provider = createProvider(config);
     await provider.connect();
 
-    // 3. Initialize ProcessOrchestrator
-    const orchestrator = new ProcessOrchestrator();
+    // 4. Initialize ProcessOrchestrator
+    const orchestrator = new ProcessOrchestrator(store);
     await orchestrator.init();
+    await orchestrator.syncWithPersistentStore();
     await orchestrator.startLogTailing();
 
-    // 4. Initialize McpBridge and start listening
+    // 5. Initialize McpBridge and start listening
     const bridge = new McpBridge(provider, orchestrator, config);
     bridge.listenToProviderCommands();
 

@@ -26,6 +26,7 @@ describe('Application Bootstrap', () => {
 
   const mockOrchestrator = {
     init: vi.fn().mockResolvedValue(undefined),
+    syncWithPersistentStore: vi.fn().mockResolvedValue(undefined),
     startLogTailing: vi.fn().mockResolvedValue(undefined),
     disconnect: vi.fn().mockResolvedValue(undefined),
   };
@@ -50,6 +51,7 @@ describe('Application Bootstrap', () => {
     expect(createProvider).toHaveBeenCalledWith(mockConfig);
     expect(mockProvider.connect).toHaveBeenCalled();
     expect(mockOrchestrator.init).toHaveBeenCalled();
+    expect(mockOrchestrator.syncWithPersistentStore).toHaveBeenCalled();
     expect(mockOrchestrator.startLogTailing).toHaveBeenCalled();
     expect(McpBridge).toHaveBeenCalledWith(mockProvider, mockOrchestrator, mockConfig);
     expect(mockBridge.listenToProviderCommands).toHaveBeenCalled();

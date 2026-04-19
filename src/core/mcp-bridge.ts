@@ -8,6 +8,9 @@ import { PassThrough } from "stream";
 import { ICollaborationProvider } from "../providers/collaboration-provider.js";
 import { ProcessOrchestrator } from "./process-orchestrator.js";
 import { AppConfig } from "./config-validator.js";
+import { LogBatcher } from "./log-batcher.js";
+import { ProjectContext } from "../types/index.js";
+import { sanitizeProjectName } from "./utils.js";
 
 export interface McpTool {
   name: string;
@@ -22,14 +25,54 @@ export class McpBridge {
   private inputs: Map<string, PassThrough> = new Map();
   private outputs: Map<string, PassThrough> = new Map();
   private tools: McpTool[] = [];
+  private logBatcher: LogBatcher;
 
   constructor(
     private provider: ICollaborationProvider,
     private orchestrator: ProcessOrchestrator,
     private config?: AppConfig
   ) {
+    this.logBatcher = new LogBatcher(async (channelId, type, content) => {
+      const formatted = type === 'stderr' 
+        ? `\`\`\`diff\n- [AGENT ERROR]\n${content}\n\`\`\``
+        : `\`\`\`\n${content}\n\`\`\``;
+      await this.provider.sendMessage(channelId, formatted, type === 'stderr' ? 'error' : 'info');
+    });
     this.setupLogForwarding();
+    this.setupLifecycleNotifications();
     this.registerDefaultTools();
+    this.initializeExistingServers();
+  }
+
+  private initializeExistingServers() {
+    const processes = this.orchestrator.listProcesses();
+    for (const proc of processes) {
+      this.initializeProjectServer(proc.projectId).catch((err) => {
+        console.error(`[McpBridge] Failed to initialize server for existing project ${proc.projectId}:`, err);
+      });
+    }
+  }
+
+  private setupLifecycleNotifications() {
+    this.orchestrator.on('PROCESS_ONLINE', async (data) => {
+      await this.provider.sendMessage(data.channelId, '🚀 Agent started and connected.', 'info');
+    });
+
+    this.orchestrator.on('PROCESS_EXITED', async (data) => {
+      await this.provider.sendMessage(data.channelId, '✅ Agent completed its task and shut down gracefully.', 'info');
+    });
+
+    this.orchestrator.on('PROCESS_CRASHED', async (data) => {
+      await this.provider.sendMessage(data.channelId, '⚠️ Agent crashed unexpectedly. PM2 is attempting a restart...', 'error');
+    });
+  }
+
+  private getProjectContext(projectId?: string): ProjectContext {
+    const id = projectId || process.env.GCB_PROJECT_ID;
+    if (!id) {
+      throw new Error("Project ID missing from call context and environment");
+    }
+    return this.orchestrator.getProcessInfo(id);
   }
 
   private registerDefaultTools() {
@@ -45,14 +88,14 @@ export class McpBridge {
       },
       handler: async (args, projectId) => {
         try {
-          const info = this.orchestrator.getProcessInfo(projectId);
+          const context = this.getProjectContext(projectId);
           // Fire and forget
-          this.provider.sendMessage(info.channelId, args.message).catch((err) => {
-            console.error(`[McpBridge] Error sending notification for ${projectId}:`, err);
+          this.provider.sendMessage(context.channelId, args.message).catch((err) => {
+            console.error(`[McpBridge] Error sending notification for ${context.projectId}:`, err);
           });
           return { success: true };
         } catch (error) {
-          console.error(`[McpBridge] Failed to handle notify_user for ${projectId}:`, error);
+          console.error(`[McpBridge] Failed to handle notify_user:`, error);
           return { success: false, error: (error as Error).message };
         }
       },
@@ -70,7 +113,7 @@ export class McpBridge {
       },
       handler: async (args, projectId) => {
         try {
-          const info = this.orchestrator.getProcessInfo(projectId);
+          const context = this.getProjectContext(projectId);
           const timeoutMs = this.config?.GCB_ASK_TIMEOUT || parseInt(process.env.GCB_ASK_TIMEOUT || "1800000", 10);
 
           const timeoutPromise = new Promise((_, reject) => {
@@ -78,7 +121,7 @@ export class McpBridge {
           });
 
           const response = await Promise.race([
-            this.provider.waitForInput(info.channelId, args.prompt),
+            this.provider.waitForInput(context.channelId, args.prompt),
             timeoutPromise,
           ]);
 
@@ -88,7 +131,7 @@ export class McpBridge {
           if (message === "Timeout waiting for user input") {
             return { error: message, code: -32603 };
           }
-          console.error(`[McpBridge] Failed to handle ask_human for ${projectId}:`, error);
+          console.error(`[McpBridge] Failed to handle ask_human:`, error);
           return { error: message };
         }
       },
@@ -97,11 +140,19 @@ export class McpBridge {
 
   private setupLogForwarding() {
     this.orchestrator.on('LOG_EMITTED', (log) => {
+      const isJson = LogBatcher.isJsonRpc(log.content);
+
       if (log.type === 'stdout') {
-        const input = this.inputs.get(log.projectId);
-        if (input) {
-          input.write(log.content + '\n');
+        if (isJson) {
+          const input = this.inputs.get(log.projectId);
+          if (input) {
+            input.write(log.content + '\n');
+          }
+        } else {
+          this.logBatcher.addLog(log.projectId, log.channelId, 'stdout', log.content);
         }
+      } else if (log.type === 'stderr') {
+        this.logBatcher.addLog(log.projectId, log.channelId, 'stderr', log.content);
       }
     });
   }
@@ -118,8 +169,9 @@ export class McpBridge {
               await this.provider.sendMessage(command.channelId, "Usage: /start <projectId>");
               return;
             }
-            const channelId = await this.provider.createSpace(command.projectId);
-            const spawnedId = await this.orchestrator.startProcess(command.projectId, channelId);
+            const sanitizedId = sanitizeProjectName(command.projectId);
+            const channelId = await this.provider.createSpace(sanitizedId);
+            const spawnedId = await this.orchestrator.startProcess(sanitizedId, channelId, ['gemini'], command.userId);
             await this.initializeProjectServer(spawnedId);
             await this.provider.sendMessage(channelId, `🚀 Spawned process: ${spawnedId}. You can now interact with Gemini here.`);
             break;
@@ -128,7 +180,7 @@ export class McpBridge {
           case 'stop': {
             const projectId = this.orchestrator.getProjectFromChannel(command.channelId);
             if (!projectId) {
-              await this.provider.sendMessage(command.channelId, "❌ Error: This channel is not associated with any active process.");
+              await this.provider.sendMessage(command.channelId, "❌ Error: This channel is not associated with any active process.", 'error');
               return;
             }
             await this.orchestrator.stopProcess(projectId);
@@ -140,7 +192,7 @@ export class McpBridge {
           case 'status': {
             const projectId = this.orchestrator.getProjectFromChannel(command.channelId);
             if (!projectId) {
-              await this.provider.sendMessage(command.channelId, "❌ Error: This channel is not associated with any active process.");
+              await this.provider.sendMessage(command.channelId, "❌ Error: This channel is not associated with any active process.", 'error');
               return;
             }
             const info = this.orchestrator.getProcessInfo(projectId);
@@ -161,7 +213,7 @@ export class McpBridge {
         }
       } catch (error) {
         console.error(`[McpBridge] Error handling command ${command.type}:`, error);
-        await this.provider.sendMessage(command.channelId, `❌ Error: ${(error as Error).message}`);
+        await this.provider.sendMessage(command.channelId, `❌ Error: ${(error as Error).message}`, 'error');
       }
     });
   }
@@ -230,8 +282,10 @@ export class McpBridge {
     const transport = new StdioServerTransport(input, output);
     
     output.on('data', (chunk) => {
-      // TODO: Implement actual piping to child process stdin via Orchestrator/PM2
-      console.log(`[McpBridge] Sending to ${projectId} stdin: ${chunk.toString()}`);
+      const data = chunk.toString();
+      this.orchestrator.sendToProcess(projectId, data).catch((err) => {
+        console.error(`[McpBridge] Failed to send IPC message to ${projectId}:`, err);
+      });
     });
 
     this.registerToolsToServer(server, projectId);
@@ -257,12 +311,20 @@ export class McpBridge {
     }
 
     if (transport) {
-      // transport doesn't have a close method in some versions but server.close() handles it usually
       this.transports.delete(projectId);
     }
 
-    this.inputs.delete(projectId);
-    this.outputs.delete(projectId);
+    const input = this.inputs.get(projectId);
+    if (input) {
+      input.end();
+      this.inputs.delete(projectId);
+    }
+
+    const output = this.outputs.get(projectId);
+    if (output) {
+      output.end();
+      this.outputs.delete(projectId);
+    }
     
     console.log(`MCP Server cleaned up for project: ${projectId}`);
   }

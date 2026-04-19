@@ -67,3 +67,141 @@
 [2026-04-17 21:05:28] SUMMARY: Implemented main application entry point and bootstrapping with graceful shutdown.
 [2026-04-17 21:05:28] NEXT_STEP: aurelius:finalize-ticket  US-05-MCP-005
 ---
+[2026-04-17 21:06:18] SUMMARY: Reviewed and approved US-05-MCP- 005; implementation of main entry point and bootstrapping is correct, including graceful shutdown and unit tests.
+[2026-04-17 21:06:18] NEXT_STEP: aurelius:groom-ticket "US-05-MCP-006" -005. The implementation of the main entry point and bootstrapping, including graceful shutdown and unit tests, is correct.  The next step is to groom the next ticket.
+---
+[2026-04-17 21:07:02] SUMMARY: Performed technical grooming of  US-05-MCP-006, adding details on log filtering, batching, and UX-aligned  color-coding.
+[2026-04-17 21:07:02] NEXT_STEP: aurelius:dev-ticket "US-05-MCP- 006"
+---
+[2026-04-17 21:09:35] SUMMARY: Implemented PM2 log streaming to Discord  with batching, filtering, and color-coded embeds.
+[2026-04-17 21:09:35] NEXT_STEP: aurelius:finalize-ticket  backlog/WIP/US-05-MCP-006-pm2_log_streaming.md
+---
+[2026-04-17 21:10:36] SUMMARY: Approved US-05-MCP-006: Log streaming  with batching and filtering. Git commit: `git add . && git commit -m "feat: implement PM2 log streaming to  Discord with batching and filtering"`
+[2026-04-17 21:10:36] NEXT_STEP: aurelius:groom-ticket "US-05 -MCP-007"
+---
+[2026-04-17 21:11:30] SUMMARY: Performed technical grooming of US-05-MCP-007, adding technical notes, implementation details, and setting  status to READY.
+[2026-04-17 21:11:30] NEXT_STEP: aurelius:dev-ticket "US-05-MCP- 007"
+---
+[2026-04-17 21:12:40] SUMMARY: Implemented project context extraction in McpBridge and updated tool handlers to  ensure reliable message routing.
+[2026-04-17 21:12:40] NEXT_STEP: aurelius:finalize-ticket US-05-MCP-00 7
+---
+[2026-04-17 21:13:15] SUMMARY: Approved US-05-MCP-007: Implemented reliable  project context extraction and validation.
+[2026-04-17 21:13:15] NEXT_STEP: aurelius:dev-ticket "US-05- MCP-008"
+---
+[2026-04-17 21:14:37] SUMMARY: Implemented process lifecycle notifications in McpBridge and  ProcessOrchestrator with comprehensive TDD coverage.
+[2026-04-17 21:14:37] NEXT_STEP: aurelius:finalize-ticket backlog/W IP/US-05-MCP-008-lifecycle_notifications.md
+---
+[2026-04-17 21:15:34] SUMMARY: Reviewed and approved US-05-MCP-008; implemented process lifecycle notifications and unified log streaming with TDD coverage. Commit: `git add . && git commit -m "feat(mcp): implement lifecycle notifications, log streaming and project context extraction"`
+[2026-04-17 21:15:34] NEXT_STEP: aurelius:groom-ticket "US-06- SEC-001"
+---
+[2026-04-17 21:16:31] SUMMARY: Performed technical grooming of  US-06-SEC-001, updated UX/Context specs and .env.example, and refined  technical notes.
+[2026-04-17 21:16:31] NEXT_STEP: aurelius:dev-ticket "US-06-SEC-00 1"
+---
+[2026-04-17 21:17:52] SUMMARY: Implemented AUTHORIZED_USER_IDS whitelist in Discord Provider with audit logging and updated config validation.
+[2026-04-17 21:17:52] NEXT_STEP: aurelius:finalize-ticket US-06-SEC -001-user_whitelist.md
+---
+[2026-04-17 21:18:38] SUMMARY: Reviewed  and finalized US-06-SEC-001: Authorized User Whitelist implementation.
+[2026-04-17 21:18:38] NEXT_STEP: aurelius :groom-ticket "US-06-SEC-002-project_name_sanitization.md "
+---
+[2026-04-17 21:19:20] SUMMARY: Technical grooming of US-06-SEC-002 complete with technical notes and security recommendations.
+[2026-04-17 21:19:20] NEXT_STEP: aurelius:dev-ticket "US-06-SEC-002" roomed US-06-SEC-002: added technical notes on early sanitization in `McpBridge`,  identified a vulnerability where raw IDs were passed to providers, and updated acceptance criteria to handle empty sanitized names.
+---
+[2026-04-17 21:20:35] SUMMARY: Implemented project  name sanitization in a new utility, integrated it into McpBridge and ProcessOrchestrator, and added comprehensive unit  tests.
+[2026-04-17 21:20:35] NEXT_STEP: aurelius:finalize-ticket US-06-SEC-002
+---
+[2026-04-17 21:21:42] SUMMARY: Reviewed and approved US-06-SEC -002, implementation is secure and well-tested.
+[2026-04-17 21:21:42] NEXT_STEP: aurelius:groom-ticket " US-06-SEC-003"
+---
+[2026-04-17 21:22:19] SUMMARY: Performed technical grooming for US-06-SEC-003, adding detailed Zod validation  notes and missing RESTART_DELAY requirement.
+[2026-04-17 21:22:19] NEXT_STEP: aurelius:dev-ticket "US- 06-SEC-003"
+---
+[2026-04-17 21:24:31] SUMMARY: Implemented strict configuration validation for tokens, API keys, and user IDs in config-validator.ts.
+[2026-04-17 21:24:31] NEXT_STEP: aurelius:finalize-ticket US-06-SEC-003  Discord tokens, Gemini API keys, and authorized user IDs, along with adding a default value for the restart delay. I  verified these changes using `vitest`, ensuring all tests pass, and integrated the new tests into the existing suite.
+---
+[2026-04-17 21:25:49] SUMMARY: Reviewed and finalized US-06-SEC -003 (Strict Config Validation) and US-06-SEC-002 (Project Name Sanit ization), ensuring all security measures and tests are in place.
+[2026-04-17 21:25:49] NEXT_STEP: aurelius:analyze "Implement piping of  MCP server output to child process stdin to complete the bidirectional communication loop"
+---
+[2026-04-17 21:27:07] SUMMARY: Defined the Stdio Bridge architecture using a Launcher Shim and PM 2 IPC to enable bidirectional MCP communication between the Bridge and Gemini agents.
+[2026-04-17 21:27:07] NEXT_STEP: aurelius:gen -tickets "MCP Server & Bridge Logic"
+---
+[2026-04-17 21:28:14] SUMMARY: Created User Stories US-05-MCP- 009, 010, and 011 to implement the Stdio Bridge (Launcher Shim)  and bidirectional MCP routing for Epic 5.
+[2026-04-17 21:28:14] NEXT_STEP: aurelius:groom-ticket "US-05- MCP-009"
+---
+[2026-04-17 21:28:48] SUMMARY: Performed technical grooming of US-05-MCP-009, updated technical notes and context map.
+[2026-04-17 21:28:48] NEXT_STEP: aurelius:dev-ticket "US-05-MCP-009"
+---
+[2026-04-17 21:30:25] SUMMARY: Implemented and tested the Launcher Shim script for bridging  PM2 IPC messages to child process stdin.
+[2026-04-17 21:30:25] NEXT_STEP: aurelius:finalize-ticket backlog/WIP/ US-05-MCP-009-launcher_shim_implementation.md
+---
+[2026-04-17 21:32:05] SUMMARY: Reviewed  and finalized US-05-MCP-009 Launcher Shim implementation; all tests passed.
+[2026-04-17 21:32:05] NEXT_STEP: NONE
+---
+[2026-04-17 21:33:34] SUMMARY: Integrated Launcher Shim in ProcessOrchestrator and implemented sendToProcess for  IPC.
+[2026-04-17 21:33:34] NEXT_STEP: aurelius:finalize-ticket US-05-MCP-010
+---
+[2026-04-17 21:34:27] SUMMARY: Integrated Launcher Shim in ProcessOrchestrator and implemented PM2 IPC-based stdin piping for bidirectional agent communication.
+[2026-04-17 21:34:27] NEXT_STEP: aurelius:groom-ticket "US-05-MCP-011"  `ProcessOrchestrator` correctly utilizes the `Launcher Shim` for process spawning and implements the `sendToProcess` method using  PM2 IPC with the `gcb:stdin` topic. Comprehensive unit tests verify the bidirectional communication capabilities and edge cases.
+---
+[2026-04-17 21:35:00] SUMMARY: Performed technical grooming of US-05 -MCP-011, adding detailed technical notes for bidirectional routing and updating the context map.
+[2026-04-17 21:35:00] NEXT_STEP: aurelius:dev-ticket "US-05-MCP-011" 011`. I have updated the User Story with refined technical notes regarding the `IpcTransport` implementation, the  `gcb:stdin` IPC topic, and the multiplexing strategy using a `Map<string, McpServer>`. The  context map has been enriched with specific file roles to guide the developer.
+---
+[2026-04-17 21:37:13] SUMMARY: Implemented bidirectional MCP routing  with robust JSON-RPC detection and project isolation.
+[2026-04-17 21:37:13] NEXT_STEP: aurelius:finalize-ticket US-05- MCP-011
+---
+[2026-04-17 21:38:31] SUMMARY: Reviewed and finalized US-05-MCP-01 1: Bidirectional MCP Routing. Verified implementation of launcher shim, JSON-RPC multiplexing, and log batching. All  tests (132) passed.
+[2026-04-17 21:38:31] NEXT_STEP: aurelius:analyze "Finalize Epics and verify system  integration"
+---
+[2026-04-17 21:39:27] SUMMARY: Updated ARCHITECTURE.md and EPICS.md to reflect project completion and verified system integration via code and test review.
+[2026-04-17 21:39:27] NEXT_STEP: NONE
+---
+[2026-04-17 21:39:42] SUMMARY: Evaluated project completeness and identified that core features are implemented , suggesting a transition to finalization or new feature analysis.
+[2026-04-17 21:39:42] NEXT_STEP: aurelius:finalize-ticket "US- 06-SEC-003"
+---
+[2026-04-17 21:41:17] SUMMARY: Reviewed US-06-SEC -003, confirmed all criteria are met, tests pass, and moved the ticket to DONE.
+[2026-04-17 21:41:17] NEXT_STEP: aure lius:analyze "Request"
+---
+[2026-04-17 21:42:03] SUMMARY: Defined the architecture for a  new Persistence Layer (Epic 7) and updated specifications.
+[2026-04-17 21:42:03] NEXT_STEP: aurelius:gen-tickets " Persistence & State Management"
+---
+[2026-04-17 21:42:33] SUMMARY: Generated 4 User Stories for Epic  7 (Persistence & State Management) in backlog/TODO/.
+[2026-04-17 21:42:33] NEXT_STEP: aurelius:groom-ticket " US-07-PERS-001"
+---
+[2026-04-17 21:43:01] SUMMARY: Performed technical grooming of US-07-PERS-001: setup SQLite StateStore  with better-sqlite3 and Singleton pattern.
+[2026-04-17 21:43:01] NEXT_STEP: aurelius:dev-ticket "US- 07-PERS-001"
+---
+[2026-04-17 21:44:14] SUMMARY: Implemented SQLite StateStore as a Singleton in src/core/ state-store.ts, updated ConfigValidator with DATABASE_PATH, and added comprehensive unit tests.
+[2026-04-17 21:44:14] NEXT_STEP: aurelius:finalize-ticket backlog/WIP/US-07-PERS-001-setup_sqlite_statestore.md  updates, and singleton implementation with schema initialization. All tests, including those for singleton behavior and schema integrity, have passed,  so I am ready to finalize the ticket.
+---
+[2026-04-17 21:45:25] SUMMARY: Reviewed and finalized US-07-PERS-00 1 (SQLite StateStore). Staged all pending changes for MCP, Security, and Persistence layers.
+[2026-04-17 21:45:25] NEXT_STEP: aure lius:dev-ticket "US-07-PERS-002"
+---
+[2026-04-17 21:48:11] SUMMARY: Implemented project and space mapping persistence in StateStore and integrated it into ProcessOrchestrator.
+[2026-04-17 21:48:11] NEXT_STEP: aurelius:finalize-ticket backlog/WIP/US-07-PERS-0 02-persist_project_mappings.md
+---
+[2026-04-17 21:49:08] SUMMARY: Reviewed and finalized US-07-PERS-002 : Persist Project and Space Mappings.
+[2026-04-17 21:49:08] NEXT_STEP: aurelius:dev-ticket "US-0 7-PERS-004-orchestrator_boot_sync"
+---
+[2026-04-17 21:51:15] SUMMARY: Im plemented StateStore.listActiveProjects() and ProcessOrchestrator.syncWithPersistentStore() to reconcile DB state with PM2  on startup. Integrated the sync into application bootstrap and added comprehensive unit tests.
+[2026-04-17 21:51:15] NEXT_STEP: aurelius: finalize-ticket US-07-PERS-004-orchestrator_boot_sync
+---
+[2026-04-17 21:52:18] SUMMARY: Reviewed and finalized US-07-PERS-004. Implementation in ProcessOr chestrator and StateStore is correct. Tests passed. Moved to DONE and committed.
+[2026-04-17 21:52:18] NEXT_STEP: aure lius:groom-ticket "US-07-PERS-003"
+---
+[2026-04-17 21:52:51] SUMMARY: Technical grooming of US-07-PERS-003 complete.
+[2026-04-17 21:52:51] NEXT_STEP: aurelius:dev-ticket "US-07-PERS-003"
+---
+[2026-04-17 21:54:42] SUMMARY: Implemented persistent audit log for user commands and process failures with associated unit tests.
+[2026-04-17 21:54:42] NEXT_STEP: aurelius: finalize-ticket US-07-PERS-003
+---
+[2026-04-17 21:56:16] SUMMARY: Reviewed US-07-PERS-00 3, added missing test verifications in DiscordProvider, verified all ACs, and moved the ticket to DONE.
+[2026-04-17 21:56:16] NEXT_STEP: aurelius:analyze "Backlog is empty, all epics are DONE. Perform a final project review and suggest any further improvements or maintenance tasks." The review of `US-07- PERS-003` is complete. The implementation correctly introduces a persistent audit log for user commands (via `DiscordProvider`)  and process lifecycle events (via `ProcessOrchestrator`). The `StateStore` now manages an `audit_ log` table and provides methods for logging and querying events. I have added missing mock verifications in `tests/unit/discord -provider.test.ts` to ensure 100% test coverage of the new logging logic. All unit  tests passed, and Epic 7 is now fully completed.
+---
+[2026-04-17 21:57:03] SUMMARY: Performed a final project review and introduced Epic 8 for maintenance, Slack support, and architectural cleanup.
+[2026-04-17 21:57:03] NEXT_STEP: aurelius:gen-tickets "Maintenance & Evolution"  review, finding the core functional and non-functional requirements to be met. To ensure the long-term health and multi-platform vision  of the Gemini Collaboration Bridge, I've defined a new **Epic 8: Maintenance & Evolution**. This includes migrating the  test suite to pure TypeScript, implementing the Slack Provider, and enhancing security through dynamic whitelisting and process health monitoring.
+---
+[2026-04-17 21:57:38] SUMMARY: Generated 5 User Stories for Epic 8 and updated its status to IN_PROGRESS.
+[2026-04-17 21:57:38] NEXT_STEP: aurelius:groom-ticket "US-08-EVOL-001"  Epic "Maintenance & Evolution" has been broken down into 5 atomic User Stories (US- 08-EVOL-001 to US-08-EVOL-005) covering Slack  support, test migration, enhanced UI, dynamic authorization, and health monitoring. The Epic status has been updated to `IN_PROGRESS`.
+---
+[2026-04-17 21:58:23] SUMMARY: Technical grooming of US-08-EVOL-001 completed . Updated US with technical notes and updated ARCHITECTURE.md.
+[2026-04-17 21:58:23] NEXT_STEP: aurelius:dev- ticket "US-08-EVOL-001"
+---

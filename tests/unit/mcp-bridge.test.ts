@@ -15,6 +15,7 @@ describe('McpBridge', () => {
     };
     mockOrchestrator = {
       getProcessInfo: vi.fn(),
+      listProcesses: vi.fn().mockReturnValue([]),
       on: vi.fn(),
     };
     bridge = new McpBridge(mockProvider as any, mockOrchestrator as any);
@@ -45,7 +46,7 @@ describe('McpBridge', () => {
     expect(bridge['tools']).toContainEqual(expect.objectContaining({ name: 'test_tool' }));
   });
 
-  it('should forward stdout logs to the correct project server', async () => {
+  it('should forward stdout logs to the correct project server if it is JSON-RPC', async () => {
     const projectId = 'test-project';
     await bridge.initializeProjectServer(projectId);
     
@@ -56,24 +57,40 @@ describe('McpBridge', () => {
     const input = bridge['inputs'].get(projectId);
     const writeSpy = vi.spyOn(input!, 'write');
     
-    handler({ projectId, type: 'stdout', content: 'hello mcp' });
+    const jsonRpc = '{"jsonrpc": "2.0", "method": "test"}';
+    handler({ projectId, type: 'stdout', content: jsonRpc, channelId: 'c1' });
     
-    expect(writeSpy).toHaveBeenCalledWith('hello mcp\n');
+    expect(writeSpy).toHaveBeenCalledWith(jsonRpc + '\n');
   });
 
-  it('should not forward stderr logs to mcp input', async () => {
+  it('should forward non-JSON stdout logs to logBatcher', async () => {
     const projectId = 'test-project';
+    const channelId = 'channel-123';
     await bridge.initializeProjectServer(projectId);
+    
+    const addLogSpy = vi.spyOn(bridge['logBatcher'], 'addLog');
     
     const onCall = mockOrchestrator.on.mock.calls.find((call: any) => call[0] === 'LOG_EMITTED');
     const handler = onCall[1];
     
-    const input = bridge['inputs'].get(projectId);
-    const writeSpy = vi.spyOn(input!, 'write');
+    handler({ projectId, type: 'stdout', content: 'plain log', channelId });
     
-    handler({ projectId, type: 'stderr', content: 'error' });
+    expect(addLogSpy).toHaveBeenCalledWith(projectId, channelId, 'stdout', 'plain log');
+  });
+
+  it('should forward stderr logs to logBatcher', async () => {
+    const projectId = 'test-project';
+    const channelId = 'channel-123';
+    await bridge.initializeProjectServer(projectId);
     
-    expect(writeSpy).not.toHaveBeenCalled();
+    const addLogSpy = vi.spyOn(bridge['logBatcher'], 'addLog');
+    
+    const onCall = mockOrchestrator.on.mock.calls.find((call: any) => call[0] === 'LOG_EMITTED');
+    const handler = onCall[1];
+    
+    handler({ projectId, type: 'stderr', content: 'error log', channelId });
+    
+    expect(addLogSpy).toHaveBeenCalledWith(projectId, channelId, 'stderr', 'error log');
   });
 
   it('should register default tools on construction', () => {
@@ -149,6 +166,47 @@ describe('McpBridge', () => {
     expect(result).toEqual({ 
       success: false, 
       error: `Process with ID ${projectId} not found` 
+    });
+  });
+
+  describe('lifecycle notifications', () => {
+    it('should send a notification when PROCESS_ONLINE is emitted', () => {
+      const projectId = 'test-project';
+      const channelId = 'channel-123';
+
+      mockOrchestrator.on.mock.calls.find((call: any) => call[0] === 'PROCESS_ONLINE')[1]({ projectId, channelId });
+
+      expect(mockProvider.sendMessage).toHaveBeenCalledWith(
+        channelId,
+        '🚀 Agent started and connected.',
+        'info'
+      );
+    });
+
+    it('should send a notification when PROCESS_EXITED is emitted', () => {
+      const projectId = 'test-project';
+      const channelId = 'channel-123';
+
+      mockOrchestrator.on.mock.calls.find((call: any) => call[0] === 'PROCESS_EXITED')[1]({ projectId, channelId });
+
+      expect(mockProvider.sendMessage).toHaveBeenCalledWith(
+        channelId,
+        '✅ Agent completed its task and shut down gracefully.',
+        'info'
+      );
+    });
+
+    it('should send a notification when PROCESS_CRASHED is emitted', () => {
+      const projectId = 'test-project';
+      const channelId = 'channel-123';
+
+      mockOrchestrator.on.mock.calls.find((call: any) => call[0] === 'PROCESS_CRASHED')[1]({ projectId, channelId });
+
+      expect(mockProvider.sendMessage).toHaveBeenCalledWith(
+        channelId,
+        '⚠️ Agent crashed unexpectedly. PM2 is attempting a restart...',
+        'error'
+      );
     });
   });
 });
